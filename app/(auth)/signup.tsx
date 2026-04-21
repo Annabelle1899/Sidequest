@@ -1,7 +1,4 @@
 // app/(auth)/signup.tsx
-// PERSON 1 — Create Account screen
-// Calls signUp() from services/auth.ts
-
 import { useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity,
@@ -13,30 +10,28 @@ import { UCLA, UI } from '../../constants/Colors'
 
 export default function SignupScreen() {
   const router = useRouter()
-
-  // Form state
-  const [username, setUsername]           = useState('')
-  const [email, setEmail]                 = useState('')
-  const [password, setPassword]           = useState('')
-  const [confirmPassword, setConfirm]     = useState('')
-  const [loading, setLoading]             = useState(false)
+  const [username, setUsername]       = useState('')
+  const [email, setEmail]             = useState('')
+  const [password, setPassword]       = useState('')
+  const [confirmPassword, setConfirm] = useState('')
+  const [loading, setLoading]         = useState(false)
 
   async function handleSignUp() {
-    // Basic validation
     if (!username || !email || !password || !confirmPassword) {
       return Alert.alert('Missing Fields', 'Please fill in all fields.')
+    }
+    if (!email.endsWith('@g.ucla.edu') && !email.endsWith('@ucla.edu')) {
+      return Alert.alert('UCLA Email Required', 'Please use your UCLA email (@g.ucla.edu or @ucla.edu)')
+    }
+    if (password.length < 6) {
+      return Alert.alert('Password Too Short', 'Password must be at least 6 characters.')
     }
     if (password !== confirmPassword) {
       return Alert.alert('Password Mismatch', 'Passwords do not match.')
     }
-    if (password.length < 6) {
-      return Alert.alert('Weak Password', 'Password must be at least 6 characters.')
-    }
-
     setLoading(true)
     try {
       await signUp(email.trim(), password, username.trim())
-      // _layout.tsx will automatically redirect to home after login
     } catch (err: any) {
       Alert.alert('Sign Up Failed', err.message)
     } finally {
@@ -45,12 +40,8 @@ export default function SignupScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
-        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.back} onPress={() => router.back()}>
             <Text style={styles.backText}>←</Text>
@@ -59,12 +50,32 @@ export default function SignupScreen() {
           <Text style={styles.sub}>Join the UCLA Sidequest community</Text>
         </View>
 
-        {/* Form */}
         <View style={styles.form}>
-          <Field label="Username" value={username} onChangeText={setUsername} placeholder="e.g. bruinjane" />
-          <Field label="UCLA Email" value={email} onChangeText={setEmail} placeholder="username@g.ucla.edu" keyboardType="email-address" autoCapitalize="none" />
-          <Field label="Password" value={password} onChangeText={setPassword} placeholder="Create a password" secureTextEntry />
-          <Field label="Confirm Password" value={confirmPassword} onChangeText={setConfirm} placeholder="Repeat your password" secureTextEntry />
+          {/* Username */}
+          <View style={styles.fieldWrap}>
+            <Text style={styles.label}>Username</Text>
+            <TextInput style={styles.input} value={username} onChangeText={setUsername} placeholder="e.g. bruinjane" />
+          </View>
+
+          {/* UCLA Email */}
+          <View style={styles.fieldWrap}>
+            <Text style={styles.label}>UCLA Email</Text>
+            <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="username@g.ucla.edu" keyboardType="email-address" autoCapitalize="none" />
+            <Text style={styles.hint}>⚠️ Must be a UCLA email (@g.ucla.edu or @ucla.edu)</Text>
+          </View>
+
+          {/* Password */}
+          <View style={styles.fieldWrap}>
+            <Text style={styles.label}>Password</Text>
+            <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="Create a password" secureTextEntry />
+            <Text style={styles.hint}>⚠️ Must be at least 6 characters</Text>
+          </View>
+
+          {/* Confirm Password */}
+          <View style={styles.fieldWrap}>
+            <Text style={styles.label}>Confirm Password</Text>
+            <TextInput style={styles.input} value={confirmPassword} onChangeText={setConfirm} placeholder="Repeat your password" secureTextEntry />
+          </View>
 
           <TouchableOpacity
             style={[styles.btn, loading && { opacity: 0.7 }]}
@@ -89,39 +100,23 @@ export default function SignupScreen() {
   )
 }
 
-// Reusable input field component
-function Field({ label, ...props }: any) {
-  return (
-    <View style={{ marginBottom: 14 }}>
-      <Text style={styles.label}>{label}</Text>
-      <TextInput style={styles.input} {...props} />
-    </View>
-  )
-}
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: UI.white },
-  header: { backgroundColor: UCLA.blue, padding: 24, paddingTop: 60, paddingBottom: 32 },
-  back: { width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center', marginBottom: 18 },
-  backText: { color: UI.white, fontSize: 18, fontFamily: 'Nunito-Bold' },
-  title: { fontFamily: 'Nunito-Black', fontSize: 30, color: UI.white, lineHeight: 36 },
-  sub: { fontFamily: 'NunitoSans-Regular', fontSize: 14, color: 'rgba(255,255,255,0.65)', marginTop: 5 },
-  form: { padding: 24 },
-  label: { fontFamily: 'Nunito-ExtraBold', fontSize: 13, color: UI.mid, marginBottom: 7 },
-  input: {
-    height: 52, borderRadius: 12, borderWidth: 2, borderColor: UCLA.goldLight,
-    backgroundColor: UCLA.goldPale, paddingHorizontal: 16,
-    fontFamily: 'NunitoSans-Regular', fontSize: 15, color: UI.charcoal,
-  },
-  btn: {
-    height: 54, borderRadius: 14, backgroundColor: UCLA.gold,
-    alignItems: 'center', justifyContent: 'center', marginTop: 6,
-    shadowColor: UCLA.gold, shadowOpacity: 0.4, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 5,
-  },
-  btnText: { fontFamily: 'Nunito-ExtraBold', fontSize: 16, color: UI.charcoal },
-  divider: { flexDirection: 'row', alignItems: 'center', marginVertical: 18, gap: 12 },
-  line: { flex: 1, height: 1, backgroundColor: UI.border },
-  orText: { fontFamily: 'Nunito-SemiBold', fontSize: 12, color: UI.soft },
-  footer: { textAlign: 'center', fontFamily: 'NunitoSans-Regular', fontSize: 14, color: UI.soft },
-  link: { color: UCLA.blue, fontFamily: 'Nunito-Bold' },
+  container:  { flex: 1, backgroundColor: UI.white },
+  header:     { backgroundColor: UCLA.blue, padding: 24, paddingTop: 60, paddingBottom: 32 },
+  back:       { width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center', marginBottom: 18 },
+  backText:   { color: UI.white, fontSize: 18 },
+  title:      { fontSize: 30, fontWeight: '900', color: UI.white, lineHeight: 36 },
+  sub:        { fontSize: 14, color: 'rgba(255,255,255,0.65)', marginTop: 5 },
+  form:       { padding: 24 },
+  fieldWrap:  { marginBottom: 16 },
+  label:      { fontSize: 13, fontWeight: '700', color: UI.mid, marginBottom: 7 },
+  input:      { height: 52, borderRadius: 12, borderWidth: 2, borderColor: UCLA.goldLight, backgroundColor: UCLA.goldPale, paddingHorizontal: 16, fontSize: 15, color: UI.charcoal },
+  hint:       { fontSize: 12, color: UI.soft, marginTop: 5 },
+  btn:        { height: 54, borderRadius: 14, backgroundColor: UCLA.gold, alignItems: 'center', justifyContent: 'center', marginTop: 6 },
+  btnText:    { fontSize: 16, fontWeight: '800', color: UI.charcoal },
+  divider:    { flexDirection: 'row', alignItems: 'center', marginVertical: 18, gap: 12 },
+  line:       { flex: 1, height: 1, backgroundColor: UI.border },
+  orText:     { fontSize: 12, color: UI.soft },
+  footer:     { textAlign: 'center', fontSize: 14, color: UI.soft },
+  link:       { color: UCLA.blue, fontWeight: '700' },
 })

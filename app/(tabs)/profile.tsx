@@ -57,13 +57,11 @@ export default function ProfileScreen() {
   }
 
   async function handleLogout() {
-    Alert.alert('Log Out', 'Are you sure you want to log out?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Log Out', style: 'destructive', onPress: async () => {
-        await logOut()
-        router.replace('/(auth)/welcome')
-      }},
-    ])
+    const confirm = window.confirm('Are you sure you want to log out?')
+    if (confirm) {
+      await logOut()
+      router.replace('/(auth)/welcome')
+    }
   }
 
   if (!profile) {

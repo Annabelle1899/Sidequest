@@ -1,7 +1,4 @@
 // app/_layout.tsx
-// PERSON 1 — root of the app, handles auth redirect logic
-// If logged in → go to tabs. If not → go to auth screens.
-
 import { useEffect, useState } from 'react'
 import { Stack } from 'expo-router'
 import { View, ActivityIndicator } from 'react-native'
@@ -17,7 +14,6 @@ export default function RootLayout() {
   const segments = useSegments()
 
   useEffect(() => {
-    // Listen for login/logout — runs once on app start
     const unsubscribe = onAuthChange((firebaseUser) => {
       setUser(firebaseUser)
       setLoading(false)
@@ -28,18 +24,19 @@ export default function RootLayout() {
   useEffect(() => {
     if (loading) return
 
-    const inAuthGroup = segments[0] === '(auth)'
+    const inAuthGroup = 
+      segments[0] === '(auth)' ||
+      segments[0] === 'welcome' ||
+      segments[0] === 'login' ||
+      segments[0] === 'signup'
 
     if (!user && !inAuthGroup) {
-      // Not logged in → send to welcome screen
       router.replace('/(auth)/welcome')
     } else if (user && inAuthGroup) {
-      // Logged in → send to home
       router.replace('/(tabs)/home')
     }
   }, [user, loading, segments])
 
-  // Show spinner while checking auth state
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: UCLA.blue }}>
@@ -50,9 +47,11 @@ export default function RootLayout() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(auth)"  />
-      <Stack.Screen name="(tabs)"  />
-      <Stack.Screen name="match"   />
+    <Stack.Screen name="(auth)/welcome" />
+    <Stack.Screen name="(auth)/login" />
+    <Stack.Screen name="(auth)/signup" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="match" />
       <Stack.Screen name="tracker" />
       <Stack.Screen name="chat/[id]" />
     </Stack>

@@ -23,9 +23,9 @@ export default function LoginScreen() {
     setLoading(true)
     try {
       await logIn(email.trim(), password)
-      // _layout.tsx auto-redirects to home
     } catch (err: any) {
-      Alert.alert('Login Failed', 'Incorrect email or password. Please try again.')
+      console.log('Login error:', err.code, err.message)
+      Alert.alert('Login Failed', err.message)
     } finally {
       setLoading(false)
     }

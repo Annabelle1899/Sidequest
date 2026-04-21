@@ -1,7 +1,6 @@
 // services/auth.ts
 // PERSON 1 — handles all login / signup / logout logic
 // Called by: welcome.tsx, login.tsx, signup.tsx
-
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -11,7 +10,10 @@ import {
   User,
 } from 'firebase/auth'
 import { doc, setDoc, getDoc } from 'firebase/firestore'
-import { auth, db } from '../firebase.config'
+import { getAuth } from 'firebase/auth'
+import { db } from '../firebase.config'
+import app from '../firebase.config'
+const auth = getAuth(app)
 
 // ─────────────────────────────────────────
 // SIGN UP — creates account + saves profile
