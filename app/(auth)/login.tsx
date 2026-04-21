@@ -1,13 +1,13 @@
 // app/(auth)/login.tsx
-// PERSON 1 — Log In screen
-
 import { useState } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView,
 } from 'react-native'
 import { useRouter } from 'expo-router'
+import { sendPasswordResetEmail } from 'firebase/auth'
 import { logIn } from '../../services/auth'
+import { auth } from '../../firebase.config'
 import { UCLA, UI } from '../../constants/Colors'
 
 export default function LoginScreen() {
@@ -31,6 +31,19 @@ export default function LoginScreen() {
     }
   }
 
+  async function handleForgotPassword() {
+    if (!email) {
+      Alert.alert('Enter Email', 'Please enter your UCLA email address first.')
+      return
+    }
+    try {
+      await sendPasswordResetEmail(auth, email.trim())
+      Alert.alert('Email Sent! 📧', `Password reset link sent to ${email}. Check your inbox!`)
+    } catch (err: any) {
+      Alert.alert('Error', err.message)
+    }
+  }
+
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
@@ -43,7 +56,7 @@ export default function LoginScreen() {
         </View>
 
         <View style={styles.form}>
-          <Text style={styles.label}>UCLA Email or Username</Text>
+          <Text style={styles.label}>UCLA Email</Text>
           <TextInput
             style={[styles.input, styles.inputGold]}
             value={email} onChangeText={setEmail}
@@ -58,7 +71,10 @@ export default function LoginScreen() {
             placeholder="Your password" secureTextEntry
           />
 
-          <TouchableOpacity style={{ alignSelf: 'flex-end', marginTop: 8, marginBottom: 20 }}>
+          <TouchableOpacity
+            style={{ alignSelf: 'flex-end', marginTop: 8, marginBottom: 20 }}
+            onPress={handleForgotPassword}
+          >
             <Text style={styles.forgot}>Forgot password?</Text>
           </TouchableOpacity>
 
@@ -88,20 +104,20 @@ const styles = StyleSheet.create({
   container:  { flex: 1, backgroundColor: UI.white },
   header:     { backgroundColor: UCLA.blue, padding: 24, paddingTop: 60, paddingBottom: 32 },
   back:       { width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center', marginBottom: 18 },
-  backText:   { color: UI.white, fontSize: 18, fontFamily: 'Nunito-Bold' },
-  title:      { fontFamily: 'Nunito-Black', fontSize: 30, color: UI.white, lineHeight: 36 },
-  sub:        { fontFamily: 'NunitoSans-Regular', fontSize: 14, color: 'rgba(255,255,255,0.65)', marginTop: 5 },
+  backText:   { color: UI.white, fontSize: 18 },
+  title:      { fontSize: 30, fontWeight: '900', color: UI.white, lineHeight: 36 },
+  sub:        { fontSize: 14, color: 'rgba(255,255,255,0.65)', marginTop: 5 },
   form:       { padding: 24 },
-  label:      { fontFamily: 'Nunito-ExtraBold', fontSize: 13, color: UI.mid, marginBottom: 7 },
-  input:      { height: 52, borderRadius: 12, borderWidth: 2, paddingHorizontal: 16, fontFamily: 'NunitoSans-Regular', fontSize: 15, color: UI.charcoal },
+  label:      { fontSize: 13, fontWeight: '700', color: UI.mid, marginBottom: 7 },
+  input:      { height: 52, borderRadius: 12, borderWidth: 2, paddingHorizontal: 16, fontSize: 15, color: UI.charcoal },
   inputGold:  { backgroundColor: UCLA.goldPale, borderColor: UCLA.goldLight },
   inputBlue:  { backgroundColor: UCLA.bluePale, borderColor: UCLA.blueLight },
-  forgot:     { fontFamily: 'Nunito-Bold', fontSize: 13, color: UCLA.blue },
-  btn:        { height: 54, borderRadius: 14, backgroundColor: UCLA.blue, alignItems: 'center', justifyContent: 'center', shadowColor: UCLA.blue, shadowOpacity: 0.4, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 5 },
-  btnText:    { fontFamily: 'Nunito-ExtraBold', fontSize: 16, color: UI.white },
+  forgot:     { fontSize: 13, fontWeight: '700', color: UCLA.blue },
+  btn:        { height: 54, borderRadius: 14, backgroundColor: UCLA.blue, alignItems: 'center', justifyContent: 'center' },
+  btnText:    { fontSize: 16, fontWeight: '800', color: UI.white },
   divider:    { flexDirection: 'row', alignItems: 'center', marginVertical: 18, gap: 12 },
   line:       { flex: 1, height: 1, backgroundColor: UI.border },
-  orText:     { fontFamily: 'Nunito-SemiBold', fontSize: 12, color: UI.soft },
-  footer:     { textAlign: 'center', fontFamily: 'NunitoSans-Regular', fontSize: 14, color: UI.soft },
-  link:       { color: UCLA.blue, fontFamily: 'Nunito-Bold' },
+  orText:     { fontSize: 12, color: UI.soft },
+  footer:     { textAlign: 'center', fontSize: 14, color: UI.soft },
+  link:       { color: UCLA.blue, fontWeight: '700' },
 })
