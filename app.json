@@ -16,6 +16,9 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Sidequest uses your location to find nearby Bruins and show your driver's location.",
         "NSLocationAlwaysUsageDescription": "Sidequest uses your location to update your driver during a trip."
+        },
+      "config": {
+        "googleMapsApiKey": "AIzaSyAIXwYnh9j9mfor3yd8Zmx0bI9TKLYRkvI"
       }
     },
     "android": {
@@ -26,7 +29,10 @@
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION"
-      ]
+      ],
+      "config": {
+        "googleMaps": { "apiKey": "AIzaSyAIXwYnh9j9mfor3yd8Zmx0bI9TKLYRkvI"}
+      }
     },
     "plugins": [
       "expo-router",
