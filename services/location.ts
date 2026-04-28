@@ -4,6 +4,7 @@
 import * as Location from 'expo-location'
 import { updateUserLocation } from './firestore'
 
+const GOOGLE_MAPS_API_KEY = "AIzaSyAIXwYnh9j9mfor3yd8Zmx0bI9TKLYRkvI"
 // ─────────────────────────────────────────
 // REQUEST PERMISSION & GET CURRENT LOCATION
 // ─────────────────────────────────────────
