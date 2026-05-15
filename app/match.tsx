@@ -1,7 +1,4 @@
 // app/match.tsx
-// PERSON 3 — Match Result screen
-// Shows matched user info, buttons to open tracker or chat
-
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { UCLA, UI } from '../constants/Colors'
@@ -12,7 +9,6 @@ export default function MatchScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Gold hero */}
       <View style={styles.hero}>
         <View style={styles.heroBadge}><Text style={{ fontSize: 34 }}>🎉</Text></View>
         <Text style={styles.heroTitle}>Your Match!</Text>
@@ -20,7 +16,6 @@ export default function MatchScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.body}>
-        {/* Match card */}
         <View style={styles.card}>
           <View style={styles.personRow}>
             <View style={styles.avatar}><Text style={{ fontSize: 28 }}>🧑</Text></View>
@@ -70,6 +65,13 @@ export default function MatchScreen() {
         >
           <Text style={styles.btnGhostText}>View Active Plans</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.btnHome}
+          onPress={() => router.replace('/(tabs)/home')}
+        >
+          <Text style={styles.btnHomeText}>🏠  Back to Home</Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   )
@@ -78,28 +80,30 @@ export default function MatchScreen() {
 const styles = StyleSheet.create({
   container:    { flex: 1, backgroundColor: UI.bg },
   hero:         { backgroundColor: UCLA.blue, padding: 28, alignItems: 'center', gap: 8 },
-  heroBadge:    { width: 68, height: 68, borderRadius: 34, backgroundColor: UCLA.gold, alignItems: 'center', justifyContent: 'center', shadowColor: UCLA.gold, shadowOpacity: 0.4, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
-  heroTitle:    { fontFamily: 'Nunito-Black', fontSize: 24, color: UI.white },
-  heroSub:      { fontFamily: 'NunitoSans-Regular', fontSize: 14, color: 'rgba(255,255,255,0.65)' },
+  heroBadge:    { width: 68, height: 68, borderRadius: 34, backgroundColor: UCLA.gold, alignItems: 'center', justifyContent: 'center' },
+  heroTitle:    { fontSize: 24, fontWeight: '900', color: UI.white },
+  heroSub:      { fontSize: 14, color: 'rgba(255,255,255,0.65)' },
   body:         { padding: 20, gap: 12 },
-  card:         { backgroundColor: UI.white, borderRadius: 18, padding: 18, shadowColor: UCLA.blue, shadowOpacity: 0.08, shadowRadius: 10, elevation: 3 },
+  card:         { backgroundColor: UI.white, borderRadius: 18, padding: 18 },
   personRow:    { flexDirection: 'row', alignItems: 'center', gap: 14 },
   avatar:       { width: 56, height: 56, borderRadius: 28, backgroundColor: UCLA.goldPale, borderWidth: 3, borderColor: UCLA.gold, alignItems: 'center', justifyContent: 'center' },
-  matchName:    { fontFamily: 'Nunito-Black', fontSize: 20, color: UI.charcoal },
-  matchDetail:  { fontFamily: 'NunitoSans-Regular', fontSize: 13, color: UI.soft, marginTop: 2 },
+  matchName:    { fontSize: 20, fontWeight: '900', color: UI.charcoal },
+  matchDetail:  { fontSize: 13, color: UI.soft, marginTop: 2 },
   divider:      { height: 1, backgroundColor: UI.border, marginVertical: 14 },
   statsRow:     { flexDirection: 'row', gap: 8 },
   statBox:      { flex: 1, backgroundColor: UI.bg, borderRadius: 12, padding: 12, alignItems: 'center', borderWidth: 1.5, borderColor: UI.border },
-  statLabel:    { fontFamily: 'Nunito-ExtraBold', fontSize: 10, color: UI.soft, textTransform: 'uppercase', letterSpacing: 0.5 },
-  statVal:      { fontFamily: 'Nunito-Black', fontSize: 14, color: UI.charcoal, marginTop: 4 },
+  statLabel:    { fontSize: 10, color: UI.soft, textTransform: 'uppercase', letterSpacing: 0.5 },
+  statVal:      { fontSize: 14, fontWeight: '900', color: UI.charcoal, marginTop: 4 },
   contactBox:   { backgroundColor: UCLA.goldPale, borderWidth: 2, borderColor: UCLA.goldLight, borderRadius: 18, padding: 16 },
-  contactLabel: { fontFamily: 'Nunito-ExtraBold', fontSize: 11, color: '#a07800', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 7 },
-  contactVal:   { fontFamily: 'Nunito-Black', fontSize: 18, color: UI.charcoal },
-  contactSub:   { fontFamily: 'NunitoSans-Regular', fontSize: 13, color: UI.mid, marginTop: 3 },
-  btnBlue:      { height: 54, borderRadius: 14, backgroundColor: UCLA.blue, alignItems: 'center', justifyContent: 'center', shadowColor: UCLA.blue, shadowOpacity: 0.35, shadowRadius: 10, elevation: 4 },
-  btnBlueText:  { fontFamily: 'Nunito-ExtraBold', fontSize: 16, color: UI.white },
-  btnGold:      { height: 54, borderRadius: 14, backgroundColor: UCLA.gold, alignItems: 'center', justifyContent: 'center', shadowColor: UCLA.gold, shadowOpacity: 0.35, shadowRadius: 10, elevation: 4 },
-  btnGoldText:  { fontFamily: 'Nunito-ExtraBold', fontSize: 16, color: UI.charcoal },
+  contactLabel: { fontSize: 11, color: '#a07800', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 7 },
+  contactVal:   { fontSize: 18, fontWeight: '900', color: UI.charcoal },
+  contactSub:   { fontSize: 13, color: UI.mid, marginTop: 3 },
+  btnBlue:      { height: 54, borderRadius: 14, backgroundColor: UCLA.blue, alignItems: 'center', justifyContent: 'center' },
+  btnBlueText:  { fontSize: 16, fontWeight: '800', color: UI.white },
+  btnGold:      { height: 54, borderRadius: 14, backgroundColor: UCLA.gold, alignItems: 'center', justifyContent: 'center' },
+  btnGoldText:  { fontSize: 16, fontWeight: '800', color: UI.charcoal },
   btnGhost:     { height: 54, borderRadius: 14, borderWidth: 2, borderColor: UI.border, backgroundColor: UI.bg, alignItems: 'center', justifyContent: 'center' },
-  btnGhostText: { fontFamily: 'Nunito-Bold', fontSize: 16, color: UI.mid },
+  btnGhostText: { fontSize: 16, fontWeight: '700', color: UI.mid },
+  btnHome:      { height: 54, borderRadius: 14, borderWidth: 2, borderColor: UCLA.blueLight, backgroundColor: UCLA.bluePale, alignItems: 'center', justifyContent: 'center' },
+  btnHomeText:  { fontSize: 16, fontWeight: '700', color: UCLA.blue },
 })
