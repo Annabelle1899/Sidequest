@@ -4,7 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router'
 import { getAuth } from 'firebase/auth'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase.config'
-import { listenToDriverLocation } from '../services/firestore'
+import { listenToDriverLocation, getUserById } from '../services/firestore'
 import { UCLA, UI } from '../constants/Colors'
 
 export default function TrackerScreen() {
@@ -13,15 +13,21 @@ export default function TrackerScreen() {
   const user = getAuth().currentUser
 
   const [tripData, setTripData] = useState<any>(null)
+  const [matchProfile, setMatchProfile] = useState<any>(null)
   const [driverLocation, setDriverLocation] = useState<any>(null)
   const [userRole, setUserRole] = useState('passenger')
 
   useEffect(() => {
     if (!tripId) return
-    const unsub = onSnapshot(doc(db, 'trips', tripId as string), snap => {
+    const unsub = onSnapshot(doc(db, 'trips', tripId as string), async snap => {
       const data = snap.data()
       setTripData(data)
-      setUserRole(data?.userId === user?.uid ? data?.role : 'passenger')
+      const myRole = data?.userId === user?.uid ? data?.role : (data?.role === 'driver' ? 'passenger' : 'driver')
+      setUserRole(myRole)
+      if (data?.matchedWith) {
+        const profile = await getUserById(data.matchedWith)
+        setMatchProfile(profile)
+      }
     })
     return unsub
   }, [tripId])
@@ -34,6 +40,8 @@ export default function TrackerScreen() {
     return unsub
   }, [userRole, tripId])
 
+  const matchName = matchProfile?.displayName || matchProfile?.username || 'Your Match'
+
   return (
     <View style={styles.container}>
       <View style={styles.topBar}>
@@ -41,12 +49,12 @@ export default function TrackerScreen() {
           <Text style={styles.backText}>← Home</Text>
         </TouchableOpacity>
         <Text style={styles.topLabel}>
-          {userRole === 'driver' ? 'Your Passengers' : 'Your Driver'}
+          {userRole === 'driver' ? 'Your Passenger' : 'Your Driver'}
         </Text>
         <View style={styles.driverRow}>
           <View style={styles.driverAva}><Text style={{ fontSize: 20 }}>🧑</Text></View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.driverName}>{tripData?.username || 'Loading...'}</Text>
+            <Text style={styles.driverName}>{matchName}</Text>
             <Text style={styles.driverSub}>Destination: {tripData?.destination || '—'}</Text>
           </View>
           <View style={styles.actionBtns}>
