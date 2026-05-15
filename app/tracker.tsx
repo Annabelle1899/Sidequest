@@ -1,4 +1,7 @@
+<<<<<<< Updated upstream
 // app/tracker.tsx
+=======
+>>>>>>> Stashed changes
 import { useState, useEffect } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -9,13 +12,13 @@ import { listenToDriverLocation } from '../services/firestore'
 import { UCLA, UI } from '../constants/Colors'
 
 export default function TrackerScreen() {
-  const { tripId } = useLocalSearchParams<{ tripId: string }>()
+  const { tripId } = useLocalSearchParams()
   const router = useRouter()
-  const user = getAuth().currentUser!
+  const user = getAuth().currentUser
 
-  const [tripData, setTripData] = useState<any>(null)
-  const [driverLocation, setDriverLocation] = useState<{ latitude: number; longitude: number } | null>(null)
-  const [userRole, setUserRole] = useState<'driver' | 'passenger'>('passenger')
+  const [tripData, setTripData] = useState(null)
+  const [driverLocation, setDriverLocation] = useState(null)
+  const [userRole, setUserRole] = useState('passenger')
 
   useEffect(() => {
     if (!tripId) return
@@ -37,7 +40,6 @@ export default function TrackerScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Blue top bar */}
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => router.replace('/(tabs)/home')} style={styles.backBtn}>
           <Text style={styles.backText}>← Home</Text>
@@ -61,14 +63,17 @@ export default function TrackerScreen() {
           </View>
         </View>
       </View>
+<<<<<<< Updated upstream
 
       {/* Map placeholder */}
+=======
+>>>>>>> Stashed changes
       <View style={styles.mapPlaceholder}>
         <Text style={styles.mapEmoji}>🗺️</Text>
         <Text style={styles.mapText}>Live Map</Text>
         <Text style={styles.mapSub}>
           {driverLocation
-            ? `Driver at ${driverLocation.latitude.toFixed(4)}, ${driverLocation.longitude.toFixed(4)}`
+            ? 'Driver location found!'
             : 'Waiting for driver location...'}
         </Text>
         <View style={styles.etaBadge}>
@@ -76,8 +81,6 @@ export default function TrackerScreen() {
           <Text style={styles.etaLabel}>ETA away</Text>
         </View>
       </View>
-
-      {/* Bottom info pills */}
       <View style={styles.bottomBar}>
         <View style={styles.infoPill}>
           <Text style={styles.pillLabel}>Destination</Text>
