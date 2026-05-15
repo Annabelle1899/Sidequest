@@ -1,5 +1,5 @@
 // app/(tabs)/plan.tsx
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
   TextInput, Alert, ActivityIndicator, KeyboardAvoidingView, Platform,
@@ -30,6 +30,12 @@ export default function PlanTripScreen() {
   const [freeSpots, setFreeSpots]   = useState('2')
   const [loading, setLoading]       = useState(false)
 
+  useEffect(() => {
+    if (params.destination) {
+      setDest(params.destination as string)
+    }
+  }, [params.destination])
+
   const TIMES     = ['8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','4:00 PM','6:00 PM']
   const DURATIONS = ['A few hours', 'Half-day', 'Full-day']
 
@@ -45,194 +51,5 @@ export default function PlanTripScreen() {
         userPhotoURL: user.photoURL,
         role, destination, date, pickupTime, duration, genderPref,
         peopleCount:  parseInt(peopleCount) || 1,
-       carCapacity:  role === 'driver' ? parseInt(carCapacity) : null,
-      freeSpots:    role === 'driver' ? parseInt(freeSpots) : null,
-        destinationLat: 0,
-        destinationLng: 0,
-        status: 'open' as const,
-      }
-
-      console.log('Saving trip:', tripData)
-      const myTripId = await createTrip(tripData)
-      console.log('Trip saved:', myTripId)
-
-      const match = await findMatch({ ...tripData, id: myTripId })
-      console.log('Match result:', match)
-
-      if (!match) {
-        Alert.alert('Posted!', "No match yet. We'll notify you when someone matches!")
-        router.push('/(tabs)/active')
-        return
-      }
-
-      const chatId = await createChat(user.uid, match.userId, myTripId)
-      await confirmMatch(myTripId, match.id!, user.uid, match.userId, chatId)
-
-      router.push({
-        pathname: '/match',
-        params: {
-          matchUserId:   match.userId,
-          matchUsername: match.username,
-          destination,
-          pickupTime,
-          duration,
-          chatId,
-          tripId: myTripId,
-        },
-      })
-    } catch (err: any) {
-      console.log('Error:', err.message)
-      Alert.alert('Error', err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Plan a Trip 🗺️</Text>
-        <Text style={styles.sub}>Find your perfect travel companion</Text>
-      </View>
-
-      <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
-        <View style={styles.toggleWrap}>
-          <View style={styles.toggle}>
-            {(['passenger', 'driver'] as Role[]).map(r => (
-              <TouchableOpacity
-                key={r}
-                style={[styles.toggleBtn, role === r && styles.toggleBtnActive]}
-                onPress={() => setRole(r)}
-              >
-                <Text style={[styles.toggleText, role === r && styles.toggleTextActive]}>
-                  {r === 'passenger' ? '🙋 Passenger' : '🚗 Driver'}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        <Card title="Destination">
-          <TextInput style={styles.input} value={destination} onChangeText={setDest} placeholder="Where are you going?" />
-        </Card>
-
-        <Card title="Date">
-          <TextInput style={styles.input} value={date} onChangeText={setDate} placeholder="e.g. 2025-04-20" />
-        </Card>
-
-        <Card title="Pick-up Time">
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={styles.optionRow}>
-              {TIMES.map(t => (
-                <TouchableOpacity key={t} style={[styles.optionPill, pickupTime === t && styles.optionPillActive]} onPress={() => setPickupTime(t)}>
-                  <Text style={[styles.optionText, pickupTime === t && styles.optionTextActive]}>{t}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </ScrollView>
-        </Card>
-
-        <Card title="Planned Duration">
-          <View style={styles.optionRow}>
-            {DURATIONS.map(d => (
-              <TouchableOpacity key={d} style={[styles.optionPill, duration === d && styles.optionPillActive]} onPress={() => setDuration(d)}>
-                <Text style={[styles.optionText, duration === d && styles.optionTextActive]}>{d}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </Card>
-
-        <Card title="Gender Preference">
-          <RadioGroup
-            options={[
-              { value: 'girls',   label: 'Girls 👩' },
-              { value: 'guys',    label: 'Guys 👦' },
-              { value: 'no_pref', label: 'No preference 🙌' },
-            ]}
-            selected={genderPref}
-            onSelect={(v) => setGenderPref(v as GenderPref)}
-          />
-        </Card>
-
-        {role === 'passenger' && (
-          <Card title="People you're bringing">
-            <TextInput style={styles.input} value={peopleCount} onChangeText={setPeople} placeholder="e.g. 2" keyboardType="numeric" />
-          </Card>
-        )}
-
-        {role === 'driver' && (
-          <>
-            <Card title="Car Capacity">
-              <RadioGroup
-                options={[{ value: '3', label: '3 people' }, { value: '4', label: '4 people' }, { value: '5', label: '5 or more' }]}
-                selected={carCapacity}
-                onSelect={setCapacity}
-              />
-            </Card>
-            <Card title="Free Spots">
-              <RadioGroup
-                options={[{ value: '1', label: '1 spot' }, { value: '2', label: '2 spots' }, { value: '3', label: 'All spots' }]}
-                selected={freeSpots}
-                onSelect={setFreeSpots}
-              />
-            </Card>
-          </>
-        )}
-
-        <View style={{ padding: 20 }}>
-          <TouchableOpacity style={[styles.matchBtn, loading && { opacity: 0.7 }]} onPress={handleMatch} disabled={loading}>
-            {loading ? <ActivityIndicator color={UI.white} /> : <Text style={styles.matchBtnText}>🔍  Find My Match</Text>}
-          </TouchableOpacity>
-        </View>
-        <View style={{ height: 20 }} />
-      </ScrollView>
-    </KeyboardAvoidingView>
-  )
-}
-
-function Card({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <View style={cardStyles.wrap}>
-      <Text style={cardStyles.title}>{title}</Text>
-      {children}
-    </View>
-  )
-}
-
-function RadioGroup({ options, selected, onSelect }: any) {
-  return (
-    <View style={{ gap: 9 }}>
-      {options.map((o: any) => (
-        <TouchableOpacity key={o.value} style={[radioStyles.option, selected === o.value && radioStyles.selected]} onPress={() => onSelect(o.value)}>
-          <View style={[radioStyles.dot, selected === o.value && radioStyles.dotSelected]}>
-            {selected === o.value && <View style={radioStyles.dotInner} />}
-          </View>
-          <Text style={radioStyles.label}>{o.label}</Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  )
-}
-
-const cardStyles  = StyleSheet.create({ wrap: { backgroundColor: UI.white, borderRadius: 18, padding: 18, marginHorizontal: 20, marginBottom: 12 }, title: { fontFamily: 'Nunito-ExtraBold', fontSize: 11, color: UI.soft, textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 14 } })
-const radioStyles = StyleSheet.create({ option: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 13, borderRadius: 12, borderWidth: 2, borderColor: UI.border, backgroundColor: UI.white }, selected: { borderColor: UCLA.gold, backgroundColor: UCLA.goldPale }, dot: { width: 20, height: 20, borderRadius: 10, borderWidth: 2.5, borderColor: UI.border, alignItems: 'center', justifyContent: 'center' }, dotSelected: { borderColor: UCLA.goldDark, backgroundColor: UCLA.gold }, dotInner: { width: 8, height: 8, borderRadius: 4, backgroundColor: UI.charcoal }, label: { fontFamily: 'Nunito-Bold', fontSize: 15, color: UI.charcoal } })
-const styles = StyleSheet.create({
-  header: { backgroundColor: UCLA.blue, padding: 20, paddingTop: 56 },
-  title: { fontFamily: 'Nunito-Black', fontSize: 26, color: UI.white },
-  sub: { fontFamily: 'NunitoSans-Regular', fontSize: 14, color: 'rgba(255,255,255,0.65)', marginTop: 3 },
-  container: { flex: 1, backgroundColor: UI.bg },
-  toggleWrap: { padding: 20, paddingBottom: 8 },
-  toggle: { flexDirection: 'row', backgroundColor: UCLA.bluePale, borderRadius: 12, borderWidth: 1.5, borderColor: UCLA.blueLight, padding: 4 },
-  toggleBtn: { flex: 1, height: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  toggleBtnActive: { backgroundColor: UCLA.blue },
-  toggleText: { fontFamily: 'Nunito-ExtraBold', fontSize: 14, color: UI.soft },
-  toggleTextActive: { color: UI.white },
-  input: { height: 52, borderRadius: 12, borderWidth: 2, borderColor: UCLA.goldLight, backgroundColor: UCLA.goldPale, paddingHorizontal: 16, fontSize: 15, color: UI.charcoal },
-  optionRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
-  optionPill: { height: 38, paddingHorizontal: 14, borderRadius: 19, borderWidth: 2, borderColor: UI.border, backgroundColor: UI.white, justifyContent: 'center' },
-  optionPillActive: { borderColor: UCLA.gold, backgroundColor: UCLA.goldPale },
-  optionText: { fontFamily: 'Nunito-Bold', fontSize: 13, color: UI.mid },
-  optionTextActive: { color: UI.charcoal },
-  matchBtn: { height: 54, borderRadius: 14, backgroundColor: UCLA.blue, alignItems: 'center', justifyContent: 'center' },
-  matchBtnText: { fontFamily: 'Nunito-ExtraBold', fontSize: 16, color: UI.white },
-})
+        carCapacity:  role === 'driver' ? parseInt(carCapacity) : null,
+        freeSpots:    role === 'driver' ? parseInt(freeSpots) : n
