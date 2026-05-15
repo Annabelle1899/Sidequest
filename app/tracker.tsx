@@ -1,13 +1,11 @@
 // app/tracker.tsx
-// PERSON 4 — Live Location Tracker screen
-
 import { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { getAuth } from 'firebase/auth'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase.config'
-import { updateDriverLocation, listenToDriverLocation } from '../services/firestore'
+import { listenToDriverLocation } from '../services/firestore'
 import { UCLA, UI } from '../constants/Colors'
 
 export default function TrackerScreen() {
@@ -41,6 +39,9 @@ export default function TrackerScreen() {
     <View style={styles.container}>
       {/* Blue top bar */}
       <View style={styles.topBar}>
+        <TouchableOpacity onPress={() => router.replace('/(tabs)/home')} style={styles.backBtn}>
+          <Text style={styles.backText}>← Home</Text>
+        </TouchableOpacity>
         <Text style={styles.topLabel}>
           {userRole === 'driver' ? 'Your Passengers' : 'Your Driver'}
         </Text>
@@ -61,7 +62,7 @@ export default function TrackerScreen() {
         </View>
       </View>
 
-      {/* Map placeholder for web */}
+      {/* Map placeholder */}
       <View style={styles.mapPlaceholder}>
         <Text style={styles.mapEmoji}>🗺️</Text>
         <Text style={styles.mapText}>Live Map</Text>
@@ -96,24 +97,26 @@ export default function TrackerScreen() {
 }
 
 const styles = StyleSheet.create({
-  container:        { flex: 1, backgroundColor: UI.bg },
-  topBar:           { backgroundColor: UCLA.blue, padding: 18, paddingTop: 52 },
-  topLabel:         { fontSize: 11, color: 'rgba(255,255,255,0.5)', letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 12 },
-  driverRow:        { backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 16, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)' },
-  driverAva:        { width: 44, height: 44, borderRadius: 22, backgroundColor: UCLA.gold, alignItems: 'center', justifyContent: 'center' },
-  driverName:       { fontSize: 16, fontWeight: '800', color: UI.white },
-  driverSub:        { fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 },
-  actionBtns:       { flexDirection: 'row', gap: 8 },
-  iconBtn:          { width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' },
-  mapPlaceholder:   { flex: 1, backgroundColor: '#d8eaf5', alignItems: 'center', justifyContent: 'center', gap: 10 },
-  mapEmoji:         { fontSize: 60 },
-  mapText:          { fontSize: 22, fontWeight: '800', color: UCLA.blue },
-  mapSub:           { fontSize: 14, color: UI.soft, textAlign: 'center', paddingHorizontal: 20 },
-  etaBadge:         { backgroundColor: UCLA.blue, borderRadius: 14, padding: 12, marginTop: 10 },
-  etaNum:           { fontSize: 20, fontWeight: '900', color: UCLA.gold, textAlign: 'center' },
-  etaLabel:         { fontSize: 11, color: 'rgba(255,255,255,0.6)', textAlign: 'center' },
-  bottomBar:        { backgroundColor: UI.white, borderTopWidth: 1, borderTopColor: UI.border, flexDirection: 'row', padding: 14, gap: 10 },
-  infoPill:         { flex: 1, backgroundColor: UI.bg, borderRadius: 12, padding: 11, borderWidth: 1.5, borderColor: UI.border },
-  pillLabel:        { fontSize: 10, color: UI.soft, textTransform: 'uppercase', letterSpacing: 0.5 },
-  pillVal:          { fontSize: 14, fontWeight: '700', color: UI.charcoal, marginTop: 3 },
+  container:      { flex: 1, backgroundColor: UI.bg },
+  topBar:         { backgroundColor: UCLA.blue, padding: 18, paddingTop: 52 },
+  backBtn:        { marginBottom: 8 },
+  backText:       { color: 'rgba(255,255,255,0.7)', fontSize: 14 },
+  topLabel:       { fontSize: 11, color: 'rgba(255,255,255,0.5)', letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 12 },
+  driverRow:      { backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 16, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)' },
+  driverAva:      { width: 44, height: 44, borderRadius: 22, backgroundColor: UCLA.gold, alignItems: 'center', justifyContent: 'center' },
+  driverName:     { fontSize: 16, fontWeight: '800', color: UI.white },
+  driverSub:      { fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 },
+  actionBtns:     { flexDirection: 'row', gap: 8 },
+  iconBtn:        { width: 38, height: 38, borderRadius: 19, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' },
+  mapPlaceholder: { flex: 1, backgroundColor: '#d8eaf5', alignItems: 'center', justifyContent: 'center', gap: 10 },
+  mapEmoji:       { fontSize: 60 },
+  mapText:        { fontSize: 22, fontWeight: '800', color: UCLA.blue },
+  mapSub:         { fontSize: 14, color: UI.soft, textAlign: 'center', paddingHorizontal: 20 },
+  etaBadge:       { backgroundColor: UCLA.blue, borderRadius: 14, padding: 12, marginTop: 10 },
+  etaNum:         { fontSize: 20, fontWeight: '900', color: UCLA.gold, textAlign: 'center' },
+  etaLabel:       { fontSize: 11, color: 'rgba(255,255,255,0.6)', textAlign: 'center' },
+  bottomBar:      { backgroundColor: UI.white, borderTopWidth: 1, borderTopColor: UI.border, flexDirection: 'row', padding: 14, gap: 10 },
+  infoPill:       { flex: 1, backgroundColor: UI.bg, borderRadius: 12, padding: 11, borderWidth: 1.5, borderColor: UI.border },
+  pillLabel:      { fontSize: 10, color: UI.soft, textTransform: 'uppercase', letterSpacing: 0.5 },
+  pillVal:        { fontSize: 14, fontWeight: '700', color: UI.charcoal, marginTop: 3 },
 })
