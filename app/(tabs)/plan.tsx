@@ -31,10 +31,8 @@ export default function PlanTripScreen() {
   const [loading, setLoading]       = useState(false)
 
   useEffect(() => {
-    if (params.destination) {
-      setDest(params.destination as string)
-    }
-  }, [params.destination])
+  setDest((params.destination as string) || '')
+}, [params.destination, params.t])
 
   const TIMES     = ['8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','4:00 PM','6:00 PM']
   const DURATIONS = ['A few hours', 'Half-day', 'Full-day']
