@@ -59,7 +59,7 @@ export default function PlanTripScreen() {
       }
       const chatId = await createChat(user.uid, match.userId, myTripId)
       await confirmMatch(myTripId, match.id!, user.uid, match.userId, chatId)
-      router.push({ pathname: '/match', params: { matchUserId: match.userId, matchUsername: match.username, destination, pickupTime, duration, chatId, tripId: myTripId } })
+      router.push({ pathname: '/match', params: { matchUserId: match.userId, matchUsername: match.displayName || match.username, destination, pickupTime, duration, chatId, tripId: myTripId } })
     } catch (err: any) {
       Alert.alert('Error', err.message)
     } finally {
