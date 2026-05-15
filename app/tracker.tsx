@@ -1,7 +1,3 @@
-<<<<<<< Updated upstream
-// app/tracker.tsx
-=======
->>>>>>> Stashed changes
 import { useState, useEffect } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -16,13 +12,13 @@ export default function TrackerScreen() {
   const router = useRouter()
   const user = getAuth().currentUser
 
-  const [tripData, setTripData] = useState(null)
-  const [driverLocation, setDriverLocation] = useState(null)
+  const [tripData, setTripData] = useState<any>(null)
+  const [driverLocation, setDriverLocation] = useState<any>(null)
   const [userRole, setUserRole] = useState('passenger')
 
   useEffect(() => {
     if (!tripId) return
-    const unsub = onSnapshot(doc(db, 'trips', tripId), snap => {
+    const unsub = onSnapshot(doc(db, 'trips', tripId as string), snap => {
       const data = snap.data()
       setTripData(data)
       setUserRole(data?.userId === user?.uid ? data?.role : 'passenger')
@@ -32,7 +28,7 @@ export default function TrackerScreen() {
 
   useEffect(() => {
     if (userRole !== 'passenger' || !tripId) return
-    const unsub = listenToDriverLocation(tripId, (lat, lng) => {
+    const unsub = listenToDriverLocation(tripId as string, (lat: number, lng: number) => {
       setDriverLocation({ latitude: lat, longitude: lng })
     })
     return unsub
@@ -63,18 +59,11 @@ export default function TrackerScreen() {
           </View>
         </View>
       </View>
-<<<<<<< Updated upstream
-
-      {/* Map placeholder */}
-=======
->>>>>>> Stashed changes
       <View style={styles.mapPlaceholder}>
         <Text style={styles.mapEmoji}>🗺️</Text>
         <Text style={styles.mapText}>Live Map</Text>
         <Text style={styles.mapSub}>
-          {driverLocation
-            ? 'Driver location found!'
-            : 'Waiting for driver location...'}
+          {driverLocation ? 'Driver location found!' : 'Waiting for driver location...'}
         </Text>
         <View style={styles.etaBadge}>
           <Text style={styles.etaNum}>~4 min</Text>
