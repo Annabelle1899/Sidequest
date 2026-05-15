@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { getAuth } from 'firebase/auth'
-import { createTrip, createChat } from '../../services/firestore'
+import { createTrip, createChat, getUserById } from '../../services/firestore'
 import { findMatch, confirmMatch } from '../../services/matching'
 import { UCLA, UI } from '../../constants/Colors'
 
@@ -59,7 +59,20 @@ export default function PlanTripScreen() {
       }
       const chatId = await createChat(user.uid, match.userId, myTripId)
       await confirmMatch(myTripId, match.id!, user.uid, match.userId, chatId)
-      router.push({ pathname: '/match', params: { matchUserId: match.userId, matchUsername: match.displayName || match.username, destination, pickupTime, duration, chatId, tripId: myTripId } })
+      const matchProfile = await getUserById(match.userId)
+      const matchDisplayName = matchProfile?.displayName || matchProfile?.username || match.username
+      router.push({
+        pathname: '/match',
+        params: {
+          matchUserId: match.userId,
+          matchUsername: matchDisplayName,
+          destination,
+          pickupTime,
+          duration,
+          chatId,
+          tripId: myTripId,
+        },
+      })
     } catch (err: any) {
       Alert.alert('Error', err.message)
     } finally {
