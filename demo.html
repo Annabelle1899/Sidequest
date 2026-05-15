@@ -15,17 +15,11 @@ body { background: #1a3a5c; min-height: 100vh; display: flex; flex-direction: co
 .btn-vol1 { left: -13px; top: 148px; width: 4px; height: 52px; border-radius: 3px 0 0 3px; }
 .btn-vol2 { left: -13px; top: 212px; width: 4px; height: 52px; border-radius: 3px 0 0 3px; }
 .screen { width: 100%; height: 100%; border-radius: 42px; overflow: hidden; background: #000; position: relative; }
-<<<<<<< Updated upstream
-.island {
-  position: absolute; top: 10px; left: 50%;
-  transform: translateX(-50%);
-  width: 100px; height: 26px;
-  background: #000; border-radius: 20px; z-index: 10;
-}
-=======
-.island { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 100px; height: 26px; background: #000; border-radius: 20px; z-index: 10; }
->>>>>>> Stashed changes
+.island { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 100px; height: 26px; background: #000; border-radius: 20px; z-index: 10; }
 iframe { width: 100%; height: 100%; border: none; }
+.nav { display: flex; gap: 8px; align-items: center; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 8px 14px; width: 375px; }
+.nav input { flex: 1; background: transparent; border: none; color: white; font-size: 12px; outline: none; }
+.nav button { background: #FFD100; color: #1a1a1a; border: none; border-radius: 7px; font-size: 12px; font-weight: 700; padding: 5px 12px; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -40,8 +34,17 @@ iframe { width: 100%; height: 100%; border: none; }
   <div class="btn btn-vol2"></div>
   <div class="screen">
     <div class="island"></div>
-    <iframe src="http://localhost:8086/(auth)/welcome"></iframe>
+    <iframe id="f" src="http://localhost:8081/(auth)/welcome"></iframe>
   </div>
 </div>
+<div class="nav">
+  <span style="color:rgba(255,255,255,0.4);font-size:12px">🔗</span>
+  <input id="u" value="http://localhost:8081/(auth)/welcome" />
+  <button onclick="go()">Go</button>
+</div>
+<script>
+function go() { document.getElementById('f').src = document.getElementById('u').value; }
+document.getElementById('u').addEventListener('keydown', e => { if(e.key==='Enter') go(); });
+</script>
 </body>
 </html>

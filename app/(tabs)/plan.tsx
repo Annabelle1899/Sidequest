@@ -50,4 +50,4 @@ export default function PlanTripScreen() {
         role, destination, date, pickupTime, duration, genderPref,
         peopleCount:  parseInt(peopleCount) || 1,
         carCapacity:  role === 'driver' ? parseInt(carCapacity) : null,
-        freeSpots:    role === 'driver' ? parseInt(freeSpots) : n
+        freeSpots:    role === 'driver' ? parseInt(freeSpots) : null,
