@@ -1,0 +1,105 @@
+const http = require('http');
+const fs = require('fs');
+
+const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Sidequest Demo</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #1a3a5c;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, sans-serif;
+  gap: 20px;
+}
+.title { color: #FFD100; font-size: 26px; font-weight: 800; text-align: center; }
+.sub { color: rgba(255,255,255,0.5); font-size: 13px; text-align: center; }
+.phone {
+  width: 375px; height: 780px;
+  background: #1c1c1e;
+  border-radius: 54px;
+  padding: 14px;
+  position: relative;
+  border: 1px solid #3a3a3c;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px #000;
+}
+.btn { position: absolute; background: #2c2c2e; border-radius: 3px; }
+.btn-power { right: -13px; top: 160px; width: 4px; height: 72px; border-radius: 0 3px 3px 0; }
+.btn-silent { left: -13px; top: 100px; width: 4px; height: 32px; border-radius: 3px 0 0 3px; }
+.btn-vol1 { left: -13px; top: 148px; width: 4px; height: 52px; border-radius: 3px 0 0 3px; }
+.btn-vol2 { left: -13px; top: 212px; width: 4px; height: 52px; border-radius: 3px 0 0 3px; }
+.screen {
+  width: 100%; height: 100%;
+  border-radius: 42px;
+  overflow: hidden;
+  background: #000;
+  position: relative;
+}
+.island {
+  position: absolute; top: 12px; left: 50%;
+  transform: translateX(-50%);
+  width: 120px; height: 34px;
+  background: #000; border-radius: 20px; z-index: 10;
+}
+iframe { width: 100%; height: 100%; border: none; }
+.nav {
+  display: flex; gap: 8px; align-items: center;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  padding: 8px 14px;
+  width: 375px;
+}
+.nav input {
+  flex: 1; background: transparent; border: none;
+  color: white; font-size: 12px; outline: none;
+}
+.nav button {
+  background: #FFD100; color: #1a1a1a;
+  border: none; border-radius: 7px;
+  font-size: 12px; font-weight: 700;
+  padding: 5px 12px; cursor: pointer;
+}
+</style>
+</head>
+<body>
+<div>
+  <div class="title">🗺️ Sidequest</div>
+  <div class="sub">UCLA Rideshare — Group 3 Demo</div>
+</div>
+<div class="phone">
+  <div class="btn btn-power"></div>
+  <div class="btn btn-silent"></div>
+  <div class="btn btn-vol1"></div>
+  <div class="btn btn-vol2"></div>
+  <div class="screen">
+    <div class="island"></div>
+    <iframe id="f" src="http://localhost:8081/(auth)/welcome"></iframe>
+  </div>
+</div>
+<div class="nav">
+  <span style="color:rgba(255,255,255,0.4);font-size:12px">🔗</span>
+  <input id="u" value="http://localhost:8081/(auth)/welcome" />
+  <button onclick="document.getElementById('f').src=document.getElementById('u').value">Go</button>
+</div>
+<script>
+document.getElementById('u').addEventListener('keydown',e=>{
+  if(e.key==='Enter') document.getElementById('f').src=document.getElementById('u').value;
+});
+</script>
+</body>
+</html>`;
+
+http.createServer((req, res) => {
+  res.writeHead(200, {
+    'Content-Type': 'text/html',
+    'X-Frame-Options': 'ALLOWALL'
+  });
+  res.end(html);
+}).listen(3000, () => console.log('Demo running at http://localhost:3000'));
