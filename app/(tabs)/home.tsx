@@ -159,7 +159,7 @@ export default function HomeScreen() {
                 key={r.id}
                 style={styles.searchResultItem}
                 onPress={() => {
-                  router.push({ pathname: '/(tabs)/plan', params: { destination: r.name } })
+                  router.push({ pathname: '/(tabs)/plan', params: { destination: r.name, t: String(Date.now()) } })
                   setShowResults(false)
                   setSearchText('')
                 }}
@@ -235,7 +235,7 @@ export default function HomeScreen() {
                   styles.recCard,
                   i === filtered.length - 1 && filtered.length % 2 !== 0 && styles.recCardWide,
                 ]}
-                onPress={() => router.push({ pathname: '/(tabs)/plan', params: { destination: item.name } })}
+                onPress={() => router.push({ pathname: '/(tabs)/plan', params: { destination: item.name, t: String(Date.now()) } })}
               >
                 <View style={[styles.recThumb, { backgroundColor: item.bg }]}>
                   <Text style={{ fontSize: 38 }}>{item.emoji}</Text>
