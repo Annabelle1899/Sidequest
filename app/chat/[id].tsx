@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import {
   View, Text, TextInput, TouchableOpacity, FlatList,
-  StyleSheet, KeyboardAvoidingView, Platform,
+  StyleSheet, KeyboardAvoidingView, Platform, Alert,
 } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { getAuth } from 'firebase/auth'
-import { listenToMessages, sendMessage, Message } from '../../services/firestore'
+import { listenToMessages, sendMessage, getUserById, Message } from '../../services/firestore'
 import { UCLA, UI } from '../../constants/Colors'
 
 export default function ChatScreen() {
@@ -32,6 +32,21 @@ export default function ChatScreen() {
     setInput('')
     await sendMessage(chatId, {
       text,
+      senderId:   user.uid,
+      senderName: user.displayName || 'You',
+      read:       false,
+    })
+  }
+
+  async function handleSharePhone() {
+    const profile = await getUserById(user.uid)
+    const phone = profile?.phone
+    if (!phone) {
+      Alert.alert('No phone number', 'Go to your Profile and add a phone number first!')
+      return
+    }
+    await sendMessage(chatId, {
+      text: `📱 My phone number: ${phone}`,
       senderId:   user.uid,
       senderName: user.displayName || 'You',
       read:       false,
@@ -89,6 +104,9 @@ export default function ChatScreen() {
       />
 
       <View style={styles.inputRow}>
+        <TouchableOpacity style={styles.shareBtn} onPress={handleSharePhone}>
+          <Text style={{ fontSize: 20 }}>📱</Text>
+        </TouchableOpacity>
         <TextInput
           style={styles.chatInput}
           value={inputText}
@@ -123,7 +141,8 @@ const styles = StyleSheet.create({
   bubbleMe:   { backgroundColor: UCLA.blue, borderBottomRightRadius: 4 },
   bubbleText: { fontSize: 14, lineHeight: 20, color: UI.charcoal },
   msgTime:    { fontSize: 10, color: UI.soft },
-  inputRow:   { backgroundColor: UI.white, borderTopWidth: 1, borderTopColor: UI.border, flexDirection: 'row', alignItems: 'center', padding: 11, gap: 10 },
+  inputRow:   { backgroundColor: UI.white, borderTopWidth: 1, borderTopColor: UI.border, flexDirection: 'row', alignItems: 'center', padding: 11, gap: 8 },
+  shareBtn:   { width: 46, height: 46, borderRadius: 23, backgroundColor: UCLA.goldPale, borderWidth: 2, borderColor: UCLA.goldLight, alignItems: 'center', justifyContent: 'center' },
   chatInput:  { flex: 1, minHeight: 46, maxHeight: 120, borderRadius: 23, borderWidth: 2, borderColor: UI.border, paddingHorizontal: 18, paddingVertical: 12, fontSize: 14, color: UI.charcoal, backgroundColor: UI.bg },
   sendBtn:    { width: 46, height: 46, borderRadius: 23, backgroundColor: UCLA.blue, alignItems: 'center', justifyContent: 'center' },
 })

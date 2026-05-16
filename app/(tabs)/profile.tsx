@@ -1,4 +1,3 @@
-// app/(tabs)/profile.tsx
 import { useState, useEffect, useRef } from 'react'
 import {
   View, Text, StyleSheet, TouchableOpacity, ScrollView,
@@ -28,6 +27,7 @@ export default function ProfileScreen() {
   const [major, setMajor]         = useState('')
   const [classOf, setClassOf]     = useState('')
   const [interests, setInterests] = useState('')
+  const [phone, setPhone]         = useState('')
 
   const avatarInputRef = useRef<any>(null)
   const photoInputRefs = [useRef<any>(null), useRef<any>(null), useRef<any>(null)]
@@ -41,6 +41,7 @@ export default function ProfileScreen() {
       setMajor(p.major || '')
       setClassOf(p.classOf || '2026')
       setInterests(p.interests?.join(', ') || '')
+      setPhone(p.phone || '')
       setAvatarUrl(p.photoURL || null)
       setPhotoUrls(p.photoUrls || [null, null, null])
     })
@@ -82,7 +83,7 @@ export default function ProfileScreen() {
     setSaving(true)
     try {
       await updateUserProfile(user.uid, {
-        bio, year, major, classOf,
+        bio, year, major, classOf, phone,
         interests: interests.split(',').map(s => s.trim()).filter(Boolean),
       })
       setEditing(false)
@@ -124,13 +125,7 @@ export default function ProfileScreen() {
               <Text style={{ fontSize: 12 }}>📷</Text>
             </View>
           </TouchableOpacity>
-          <input
-            ref={avatarInputRef}
-            type="file"
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={handleAvatarChange}
-          />
+          <input ref={avatarInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarChange} />
         </View>
         <View style={styles.coverBtns}>
           {editing
@@ -147,9 +142,7 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={styles.body}>
         <View style={{ marginTop: 50 }}>
           <Text style={styles.name}>{profile.displayName || profile.username}</Text>
-          <Text style={styles.meta}>
-            {year || 'Year'} · <Text style={{ color: UCLA.blue }}>{major || 'Major'}</Text> · UCLA
-          </Text>
+          <Text style={styles.meta}>{year || 'Year'} · <Text style={{ color: UCLA.blue }}>{major || 'Major'}</Text> · UCLA</Text>
           <View style={styles.chipRow}>
             <Chip label={`🎓 Class of ${classOf}`} color="gold" />
             <Chip label={`⭐ ${profile.rating?.toFixed(1)} rating`} color="gold" />
@@ -185,14 +178,17 @@ export default function ProfileScreen() {
           }
         </Card>
 
+        <Card title="Phone Number">
+          {editing
+            ? <TextInput style={styles.fieldInput} value={phone} onChangeText={setPhone} placeholder="e.g. (310) 123-4567" keyboardType="phone-pad" />
+            : <View style={styles.field}><Text style={styles.fieldText}>{phone || 'Add phone number...'}</Text></View>
+          }
+        </Card>
+
         <Card title="Photo Prompts">
           <View style={styles.photoGrid}>
             {PHOTO_PROMPTS.map((prompt, i) => (
-              <TouchableOpacity
-                key={prompt}
-                style={styles.photoSlot}
-                onPress={() => photoInputRefs[i].current?.click()}
-              >
+              <TouchableOpacity key={prompt} style={styles.photoSlot} onPress={() => photoInputRefs[i].current?.click()}>
                 {photoUrls[i]
                   ? <Image source={{ uri: photoUrls[i]! }} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
                   : <>
@@ -201,13 +197,7 @@ export default function ProfileScreen() {
                       <Text style={{ fontSize: 10, color: UCLA.blue, marginTop: 4 }}>Tap to upload</Text>
                     </>
                 }
-                <input
-                  ref={photoInputRefs[i]}
-                  type="file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  onChange={(e) => handlePhotoChange(e, i)}
-                />
+                <input ref={photoInputRefs[i]} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handlePhotoChange(e, i)} />
               </TouchableOpacity>
             ))}
           </View>
