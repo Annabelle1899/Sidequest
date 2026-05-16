@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, RefreshControl } from 'react-native'
 import { useRouter, useFocusEffect } from 'expo-router'
 import { getAuth } from 'firebase/auth'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import { db } from '../../firebase.config'
-import { getUserTrips, Trip } from '../../services/firestore'
+import { getUserTrips, getUserById, Trip } from '../../services/firestore'
 import { UCLA, UI } from '../../constants/Colors'
 
 export default function ActivePlansScreen() {
@@ -13,6 +13,8 @@ export default function ActivePlansScreen() {
 
   const [trips, setTrips]        = useState<Trip[]>([])
   const [refreshing, setRefresh] = useState(false)
+  const handledRef               = useRef<Set<string>>(new Set())
+  const mountedAt                = useRef(Date.now())
 
   async function loadTrips() {
     const data = await getUserTrips(user.uid)
@@ -21,7 +23,6 @@ export default function ActivePlansScreen() {
 
   useFocusEffect(useCallback(() => { loadTrips() }, []))
 
-  // Real-time listener — when any of my trips becomes matched, jump to match screen
   useEffect(() => {
     const q = query(
       collection(db, 'trips'),
@@ -30,26 +31,29 @@ export default function ActivePlansScreen() {
     )
     const unsub = onSnapshot(q, async snap => {
       for (const change of snap.docChanges()) {
-        if (change.type === "modified") {
-          const trip = { id: change.doc.id, ...change.doc.data() } as any
-          if (trip.matchedWith && trip.chatId) {
-            const { getUserById } = await import('../../services/firestore')
-            const matchProfile = await getUserById(trip.matchedWith)
-            const matchDisplayName = matchProfile?.displayName || matchProfile?.username || 'Your Match'
-            router.push({
-              pathname: '/match',
-              params: {
-                matchUserId:   trip.matchedWith,
-                matchUsername: matchDisplayName,
-                destination:   trip.destination,
-                pickupTime:    trip.pickupTime,
-                duration:      trip.duration,
-                chatId:        trip.chatId,
-                tripId:        trip.id,
-              },
-            })
-          }
-        }
+        if (change.type !== 'modified') continue
+        const trip = { id: change.doc.id, ...change.doc.data() } as any
+        if (!trip.matchedWith || !trip.chatId) continue
+        if (handledRef.current.has(trip.id)) continue
+        // Only handle if matched recently (within last 30 seconds)
+        const matchedAt = trip.updatedAt?.toMillis?.() || trip.createdAt?.toMillis?.() || 0
+        const now = Date.now()
+        if (now - matchedAt > 30000) continue
+        handledRef.current.add(trip.id)
+        const matchProfile = await getUserById(trip.matchedWith)
+        const matchDisplayName = matchProfile?.displayName || matchProfile?.username || 'Your Match'
+        router.push({
+          pathname: '/match',
+          params: {
+            matchUserId:   trip.matchedWith,
+            matchUsername: matchDisplayName,
+            destination:   trip.destination,
+            pickupTime:    trip.pickupTime,
+            duration:      trip.duration,
+            chatId:        trip.chatId,
+            tripId:        trip.id,
+          },
+        })
       }
     })
     return unsub

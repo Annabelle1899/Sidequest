@@ -1,6 +1,6 @@
 // services/matching.ts
 import { Trip, getOpenTrips } from './firestore'
-import { doc, updateDoc } from 'firebase/firestore'
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase.config'
 
 export async function findMatch(myTrip: Trip): Promise<Trip | null> {
@@ -58,12 +58,14 @@ export async function confirmMatch(
   chatId: string
 ) {
   await updateDoc(doc(db, 'trips', myTripId), {
-    status: 'matched',
+    status: "matched",
+    updatedAt: serverTimestamp(),
     matchedWith: theirUid,
     chatId,
   })
   await updateDoc(doc(db, 'trips', theirTripId), {
-    status: 'matched',
+    status: "matched",
+    updatedAt: serverTimestamp(),
     matchedWith: myUid,
     chatId,
   })
