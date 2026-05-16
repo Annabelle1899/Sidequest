@@ -2,9 +2,9 @@
 // PERSON 3 — Active Plans screen
 // Shows current user's open/matched/completed trips from Firestore
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, RefreshControl } from 'react-native'
-import { useRouter } from 'expo-router'
+import { useRouter, useFocusEffect } from 'expo-router'
 import { getAuth } from 'firebase/auth'
 import { getUserTrips, Trip } from '../../services/firestore'
 import { UCLA, UI } from '../../constants/Colors'
@@ -21,7 +21,7 @@ export default function ActivePlansScreen() {
     setTrips(data)
   }
 
-  useEffect(() => { loadTrips() }, [])
+  useFocusEffect(useCallback(() => { loadTrips() }, []))
 
   const active = trips.filter(t => t.status === 'open' || t.status === 'matched')
   const past   = trips.filter(t => t.status === 'completed' || t.status === 'cancelled')
