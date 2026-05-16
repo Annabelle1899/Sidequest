@@ -30,7 +30,7 @@ export default function ActivePlansScreen() {
     )
     const unsub = onSnapshot(q, async snap => {
       for (const change of snap.docChanges()) {
-        if (change.type === 'modified' || change.type === 'added') {
+        if (change.type === "modified") {
           const trip = { id: change.doc.id, ...change.doc.data() } as any
           if (trip.matchedWith && trip.chatId) {
             const { getUserById } = await import('../../services/firestore')
