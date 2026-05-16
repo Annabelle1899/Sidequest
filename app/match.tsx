@@ -72,7 +72,7 @@ export default function MatchScreen() {
             </TouchableOpacity>
             <View style={{ flex: 1 }}>
               <Text style={styles.matchName}>{matchUsername}</Text>
-              <Text style={styles.matchDetail}>UCLA Student · Tap avatar to view profile</Text>
+              <Text style={styles.matchDetail}>UCLA Student</Text>
             </View>
             <TouchableOpacity style={styles.profileBtn} onPress={() => setShowProfile(true)}>
               <Text style={{ fontSize: 18 }}>👤</Text>
