@@ -57,7 +57,7 @@ export default function PlanTripScreen() {
         router.push('/(tabs)/active')
         return
       }
-      const chatId = await createChat(user.uid, match.userId, myTripId)
+      const chatId = await createChat(user.uid, match.userId, myTripId, destination)
       await confirmMatch(myTripId, match.id!, user.uid, match.userId, chatId)
       const matchProfile = await getUserById(match.userId)
       const matchDisplayName = matchProfile?.displayName || matchProfile?.username || match.username

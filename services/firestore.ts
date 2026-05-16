@@ -117,10 +117,11 @@ export async function getOpenTrips(role: 'passenger' | 'driver', destination: st
 // CHAT OPERATIONS  (Person 4 uses these)
 // ═══════════════════════════════════════════
 
-export async function createChat(userAId: string, userBId: string, tripId: string): Promise<string> {
+export async function createChat(userAId: string, userBId: string, tripId: string, destination?: string): Promise<string> {
   const ref = await addDoc(collection(db, 'chats'), {
     participants: [userAId, userBId],
     tripId,
+    destination: destination || "",
     lastMessage: '',
     lastMessageAt: serverTimestamp(),
     createdAt: serverTimestamp(),
