@@ -1,7 +1,3 @@
-// app/(tabs)/messages.tsx
-// PERSON 4 — Messages list screen
-// Shows all chat conversations the user is part of
-
 import { useState, useEffect } from 'react'
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native'
 import { useRouter } from 'expo-router'
@@ -24,7 +20,6 @@ export default function MessagesScreen() {
         <Text style={styles.title}>Messages 💬</Text>
         <Text style={styles.sub}>Your trip conversations</Text>
       </View>
-
       <FlatList
         data={chats}
         keyExtractor={c => c.id}
@@ -39,11 +34,13 @@ export default function MessagesScreen() {
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.chatRow}
-            onPress={() => router.push({ pathname: '/chat/[id]', params: { id: item.id } })}
+            onPress={() => router.push({ pathname: '/chat/[id]', params: { id: item.id, destination: item.destination || '' } })}
           >
             <View style={styles.ava}><Text style={{ fontSize: 22 }}>🧑</Text></View>
             <View style={styles.chatInfo}>
-              <Text style={styles.chatName}>Trip Chat</Text>
+              <Text style={styles.chatName}>
+                {item.destination ? `Trip to ${item.destination}` : 'Trip Chat'}
+              </Text>
               <Text style={styles.chatLast} numberOfLines={1}>
                 {item.lastMessage || 'No messages yet'}
               </Text>
@@ -63,16 +60,16 @@ export default function MessagesScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: UI.bg },
   header:    { backgroundColor: UCLA.blue, padding: 20, paddingTop: 56 },
-  title:     { fontFamily: 'Nunito-Black', fontSize: 26, color: UI.white },
-  sub:       { fontFamily: 'NunitoSans-Regular', fontSize: 14, color: 'rgba(255,255,255,0.65)', marginTop: 3 },
+  title:     { fontSize: 26, fontWeight: '900', color: UI.white },
+  sub:       { fontSize: 14, color: 'rgba(255,255,255,0.65)', marginTop: 3 },
   list:      { padding: 20, gap: 10 },
   empty:     { alignItems: 'center', paddingVertical: 60, gap: 8 },
-  emptyText: { fontFamily: 'Nunito-Bold', fontSize: 18, color: UI.mid },
-  emptySub:  { fontFamily: 'NunitoSans-Regular', fontSize: 14, color: UI.soft },
-  chatRow:   { backgroundColor: UI.white, borderRadius: 16, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12, shadowColor: UCLA.blue, shadowOpacity: 0.06, shadowRadius: 6, elevation: 2 },
+  emptyText: { fontSize: 18, color: UI.mid },
+  emptySub:  { fontSize: 14, color: UI.soft },
+  chatRow:   { backgroundColor: UI.white, borderRadius: 16, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 },
   ava:       { width: 48, height: 48, borderRadius: 24, backgroundColor: UCLA.gold, alignItems: 'center', justifyContent: 'center' },
   chatInfo:  { flex: 1 },
-  chatName:  { fontFamily: 'Nunito-ExtraBold', fontSize: 15, color: UI.charcoal },
-  chatLast:  { fontFamily: 'NunitoSans-Regular', fontSize: 13, color: UI.soft, marginTop: 2 },
-  chatTime:  { fontFamily: 'Nunito-SemiBold', fontSize: 11, color: UI.soft },
+  chatName:  { fontSize: 15, fontWeight: '800', color: UI.charcoal },
+  chatLast:  { fontSize: 13, color: UI.soft, marginTop: 2 },
+  chatTime:  { fontSize: 11, color: UI.soft },
 })
