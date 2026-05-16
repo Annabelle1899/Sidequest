@@ -33,6 +33,10 @@ export default function PlanTripScreen() {
   const DURATIONS = ['A few hours', 'Half-day', 'Full-day']
 
   async function handleMatch() {
+    const today = new Date().toISOString().split("T")[0]
+    if (date && date < today) {
+      return Alert.alert("Invalid Date", "Please select a future date!")
+    }
     if (!destination || !date) {
       return Alert.alert('Missing Info', 'Please fill in destination and date.')
     }
