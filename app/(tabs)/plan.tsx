@@ -29,7 +29,7 @@ export default function PlanTripScreen() {
     setDest((params.destination as string) || '')
   }, [params.destination, params.t])
 
-  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' })
   const TIMES = ['8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','4:00 PM','6:00 PM']
   const DURATIONS = ['A few hours', 'Half-day', 'Full-day']
 
@@ -38,7 +38,7 @@ export default function PlanTripScreen() {
       return Alert.alert('Missing Info', 'Please fill in destination and date.')
     }
     if (date < today) {
-      return Alert.alert('Invalid Date', 'Please select a future date!')
+      return Alert.alert('Invalid Date', 'Please select today or a future date!')
     }
     setLoading(true)
     try {
@@ -106,11 +106,9 @@ export default function PlanTripScreen() {
           <View style={styles.input}>
             <input
               type="date"
-              value={date}
-              min={today}
               lang="en"
+              min={today}
               onChange={(e: any) => setDate(e.target.value)}
-              onFocus={(e: any) => { if (!e.target.value) e.target.value = new Date().toISOString().split("T")[0] }}
               style={{
                 border: 'none',
                 background: 'transparent',
@@ -119,7 +117,6 @@ export default function PlanTripScreen() {
                 width: '100%',
                 outline: 'none',
                 padding: 0,
-                fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
               }}
             />
           </View>
