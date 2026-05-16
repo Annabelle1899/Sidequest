@@ -1,11 +1,9 @@
-// app/(tabs)/active.tsx
-// PERSON 3 — Active Plans screen
-// Shows current user's open/matched/completed trips from Firestore
-
 import { useState, useEffect, useCallback } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, RefreshControl } from 'react-native'
 import { useRouter, useFocusEffect } from 'expo-router'
 import { getAuth } from 'firebase/auth'
+import { collection, query, where, onSnapshot } from 'firebase/firestore'
+import { db } from '../../firebase.config'
 import { getUserTrips, Trip } from '../../services/firestore'
 import { UCLA, UI } from '../../constants/Colors'
 
@@ -13,8 +11,8 @@ export default function ActivePlansScreen() {
   const router = useRouter()
   const user   = getAuth().currentUser!
 
-  const [trips, setTrips]         = useState<Trip[]>([])
-  const [refreshing, setRefresh]  = useState(false)
+  const [trips, setTrips]        = useState<Trip[]>([])
+  const [refreshing, setRefresh] = useState(false)
 
   async function loadTrips() {
     const data = await getUserTrips(user.uid)
@@ -23,84 +21,119 @@ export default function ActivePlansScreen() {
 
   useFocusEffect(useCallback(() => { loadTrips() }, []))
 
+  // Real-time listener — when any of my trips becomes matched, jump to match screen
+  useEffect(() => {
+    const q = query(
+      collection(db, 'trips'),
+      where('userId', '==', user.uid),
+      where('status', '==', 'matched')
+    )
+    const unsub = onSnapshot(q, async snap => {
+      for (const change of snap.docChanges()) {
+        if (change.type === 'modified') {
+          const trip = { id: change.doc.id, ...change.doc.data() } as any
+          if (trip.matchedWith && trip.chatId) {
+            const { getUserById } = await import('../../services/firestore')
+            const matchProfile = await getUserById(trip.matchedWith)
+            const matchDisplayName = matchProfile?.displayName || matchProfile?.username || 'Your Match'
+            router.push({
+              pathname: '/match',
+              params: {
+                matchUserId:   trip.matchedWith,
+                matchUsername: matchDisplayName,
+                destination:   trip.destination,
+                pickupTime:    trip.pickupTime,
+                duration:      trip.duration,
+                chatId:        trip.chatId,
+                tripId:        trip.id,
+              },
+            })
+          }
+        }
+      }
+    })
+    return unsub
+  }, [])
+
   const active = trips.filter(t => t.status === 'open' || t.status === 'matched')
   const past   = trips.filter(t => t.status === 'completed' || t.status === 'cancelled')
 
   const EMOJI: Record<string, string> = {
     'The Grove': '🛍️', 'Santa Monica Pier': '🎡', 'Venice Beach': '🌊',
-    'Griffith Park': '🌳', 'Sawtelle Ramen': '🍜',
+    'Griffith Park': '🌳', 'LACMA': '🎭', 'Beverly Hills': '💎',
+    'Disneyland': '🏰', 'Universal Studios': '🎢', 'Malibu Beach': '🏖️',
   }
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>
-          Active Plans{' '}
-          <Text style={styles.badge}>{active.length}</Text>
-        </Text>
-        <Text style={styles.sub}>Your upcoming trips & quests</Text>
+        <Text style={styles.title}>Active Plans ⭐</Text>
+        <Text style={styles.sub}>Your upcoming trips</Text>
       </View>
-
       <ScrollView
         contentContainerStyle={styles.body}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => { setRefresh(true); await loadTrips(); setRefresh(false) }} tintColor={UCLA.gold} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => { setRefresh(true); await loadTrips(); setRefresh(false) }} tintColor={UCLA.blue} />}
       >
-        {active.length === 0 && (
+        {active.length === 0 && past.length === 0 && (
           <View style={styles.empty}>
             <Text style={{ fontSize: 40 }}>🗺️</Text>
-            <Text style={styles.emptyText}>No active trips yet</Text>
+            <Text style={styles.emptyText}>No active plans yet</Text>
             <Text style={styles.emptySub}>Plan a trip to get started!</Text>
+            <TouchableOpacity style={styles.planBtn} onPress={() => router.push('/(tabs)/plan')}>
+              <Text style={styles.planBtnText}>Plan a Trip →</Text>
+            </TouchableOpacity>
           </View>
         )}
 
-        {active.map(trip => (
-          <TouchableOpacity
-            key={trip.id}
-            style={styles.tripCard}
-            onPress={() => trip.status === 'matched'
-              ? router.push({ pathname: '/tracker', params: { tripId: trip.id } })
-              : null
-            }
-          >
-            <View style={[styles.tripIcon, { backgroundColor: UCLA.goldPale }]}>
-              <Text style={{ fontSize: 24 }}>{EMOJI[trip.destination] || '📍'}</Text>
-            </View>
-            <View style={styles.tripInfo}>
-              <Text style={styles.tripName}>{trip.destination}</Text>
-              <Text style={styles.tripMeta}>{trip.date} · {trip.pickupTime}</Text>
-            </View>
-            <View style={[styles.statusBadge, trip.status === 'matched' ? styles.statusActive : styles.statusPending]}>
-              <Text style={[styles.statusText, trip.status === 'matched' ? { color: '#15803D' } : { color: '#a07800' }]}>
-                {trip.status === 'matched' ? 'Matched ✓' : 'Open'}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        ))}
-
-        {past.length > 0 && (
-          <>
-            <Text style={styles.sectionLabel}>Past Trips</Text>
-            {past.map(trip => (
-              <View key={trip.id} style={[styles.tripCard, { opacity: 0.55 }]}>
-                <View style={[styles.tripIcon, { backgroundColor: '#F3F4F6' }]}>
-                  <Text style={{ fontSize: 24 }}>{EMOJI[trip.destination] || '📍'}</Text>
+        {active.length > 0 && (
+          <View>
+            <Text style={styles.sectionLabel}>ACTIVE</Text>
+            {active.map(trip => (
+              <TouchableOpacity
+                key={trip.id}
+                style={styles.tripCard}
+                onPress={() => trip.status === 'matched' && trip.chatId
+                  ? router.push({ pathname: '/tracker', params: { tripId: trip.id } })
+                  : null
+                }
+              >
+                <View style={styles.tripEmoji}>
+                  <Text style={{ fontSize: 28 }}>{EMOJI[trip.destination] || '🗺️'}</Text>
                 </View>
                 <View style={styles.tripInfo}>
-                  <Text style={styles.tripName}>{trip.destination}</Text>
-                  <Text style={styles.tripMeta}>{trip.date} · {trip.duration}</Text>
+                  <Text style={styles.tripDest}>{trip.destination}</Text>
+                  <Text style={styles.tripMeta}>{trip.date} · {trip.pickupTime} · {trip.role}</Text>
+                  <View style={[styles.badge, trip.status === 'matched' ? styles.badgeMatched : styles.badgeOpen]}>
+                    <Text style={styles.badgeText}>{trip.status === 'matched' ? '✅ Matched' : '🔍 Looking...'}</Text>
+                  </View>
                 </View>
-                <View style={[styles.statusBadge, { backgroundColor: UI.bg }]}>
-                  <Text style={[styles.statusText, { color: UI.soft }]}>Done</Text>
+                {trip.status === 'matched' && (
+                  <Text style={{ fontSize: 20 }}>→</Text>
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
+        {past.length > 0 && (
+          <View>
+            <Text style={styles.sectionLabel}>PAST</Text>
+            {past.map(trip => (
+              <View key={trip.id} style={[styles.tripCard, { opacity: 0.6 }]}>
+                <View style={styles.tripEmoji}>
+                  <Text style={{ fontSize: 28 }}>{EMOJI[trip.destination] || '🗺️'}</Text>
+                </View>
+                <View style={styles.tripInfo}>
+                  <Text style={styles.tripDest}>{trip.destination}</Text>
+                  <Text style={styles.tripMeta}>{trip.date} · {trip.pickupTime}</Text>
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>{trip.status}</Text>
+                  </View>
                 </View>
               </View>
             ))}
-          </>
+          </View>
         )}
-
-        <TouchableOpacity style={styles.planBtn} onPress={() => router.push('/(tabs)/plan')}>
-          <Text style={styles.planBtnText}>+ Plan a New Trip</Text>
-        </TouchableOpacity>
-        <View style={{ height: 20 }} />
       </ScrollView>
     </View>
   )
@@ -109,23 +142,22 @@ export default function ActivePlansScreen() {
 const styles = StyleSheet.create({
   container:    { flex: 1, backgroundColor: UI.bg },
   header:       { backgroundColor: UCLA.blue, padding: 20, paddingTop: 56 },
-  title:        { fontFamily: 'Nunito-Black', fontSize: 26, color: UI.white },
-  badge:        { backgroundColor: UCLA.gold, color: UI.charcoal, borderRadius: 12, paddingHorizontal: 9, paddingVertical: 2, fontSize: 12, fontFamily: 'Nunito-ExtraBold' },
-  sub:          { fontFamily: 'NunitoSans-Regular', fontSize: 14, color: 'rgba(255,255,255,0.65)', marginTop: 3 },
-  body:         { padding: 20, gap: 12 },
-  empty:        { alignItems: 'center', paddingVertical: 40, gap: 8 },
-  emptyText:    { fontFamily: 'Nunito-Bold', fontSize: 18, color: UI.mid },
-  emptySub:     { fontFamily: 'NunitoSans-Regular', fontSize: 14, color: UI.soft },
-  sectionLabel: { fontFamily: 'Nunito-ExtraBold', fontSize: 14, color: UI.soft, marginTop: 8 },
-  tripCard:     { backgroundColor: UI.white, borderRadius: 18, padding: 15, flexDirection: 'row', alignItems: 'center', gap: 13, shadowColor: UCLA.blue, shadowOpacity: 0.07, shadowRadius: 8, elevation: 2, borderWidth: 2, borderColor: 'transparent' },
-  tripIcon:     { width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  tripInfo:     { flex: 1 },
-  tripName:     { fontFamily: 'Nunito-ExtraBold', fontSize: 16, color: UI.charcoal },
-  tripMeta:     { fontFamily: 'NunitoSans-Regular', fontSize: 12, color: UI.soft, marginTop: 2 },
-  statusBadge:  { height: 26, borderRadius: 13, paddingHorizontal: 11, justifyContent: 'center' },
-  statusActive: { backgroundColor: '#DCFCE7' },
-  statusPending:{ backgroundColor: UCLA.goldPale },
-  statusText:   { fontFamily: 'Nunito-ExtraBold', fontSize: 11 },
-  planBtn:      { height: 54, borderRadius: 14, backgroundColor: UCLA.gold, alignItems: 'center', justifyContent: 'center', marginTop: 8, shadowColor: UCLA.gold, shadowOpacity: 0.35, shadowRadius: 10, elevation: 4 },
-  planBtnText:  { fontFamily: 'Nunito-ExtraBold', fontSize: 16, color: UI.charcoal },
+  title:        { fontSize: 26, fontWeight: '900', color: UI.white },
+  sub:          { fontSize: 14, color: 'rgba(255,255,255,0.65)', marginTop: 3 },
+  body:         { padding: 20, gap: 14 },
+  empty:        { alignItems: 'center', paddingVertical: 60, gap: 10 },
+  emptyText:    { fontSize: 18, fontWeight: '700', color: UI.mid },
+  emptySub:     { fontSize: 14, color: UI.soft },
+  planBtn:      { marginTop: 8, height: 46, paddingHorizontal: 24, borderRadius: 23, backgroundColor: UCLA.blue, alignItems: 'center', justifyContent: 'center' },
+  planBtnText:  { fontSize: 15, fontWeight: '800', color: UI.white },
+  sectionLabel: { fontSize: 11, color: UI.soft, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 },
+  tripCard:     { backgroundColor: UI.white, borderRadius: 16, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 10 },
+  tripEmoji:    { width: 52, height: 52, borderRadius: 26, backgroundColor: UCLA.goldPale, alignItems: 'center', justifyContent: 'center' },
+  tripInfo:     { flex: 1, gap: 4 },
+  tripDest:     { fontSize: 16, fontWeight: '800', color: UI.charcoal },
+  tripMeta:     { fontSize: 12, color: UI.soft },
+  badge:        { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 10, backgroundColor: UI.bg },
+  badgeOpen:    { backgroundColor: UCLA.bluePale },
+  badgeMatched: { backgroundColor: '#D1FAE5' },
+  badgeText:    { fontSize: 11, fontWeight: '700', color: UI.mid },
 })
