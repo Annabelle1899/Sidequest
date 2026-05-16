@@ -117,7 +117,7 @@ export default function PlanTripScreen() {
                 width: '100%',
                 outline: 'none',
                 padding: 0,
-                fontFamily: 'inherit',
+                fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
               }}
             />
           </View>
