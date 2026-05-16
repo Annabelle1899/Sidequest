@@ -13,7 +13,7 @@ import * as SplashScreen from 'expo-splash-screen'
 
 SplashScreen.preventAutoHideAsync()
 
-function Toast({ message, chatId, onDismiss }: { message: string; chatId: string; onDismiss: () => void }) {
+function Toast({ message, chatId, destination, onDismiss }: { message: string; chatId: string; destination: string; onDismiss: () => void }) {
   const slideY = useRef(new Animated.Value(-120)).current
   const router = useRouter()
 
@@ -50,7 +50,7 @@ function Toast({ message, chatId, onDismiss }: { message: string; chatId: string
       <TouchableOpacity
         onPress={() => {
           onDismiss()
-          router.push({ pathname: "/chat/[id]", params: { id: chatId, destination: toast?.destination || "" } })
+          router.push({ pathname: "/chat/[id]", params: { id: chatId, destination: destination || "" } })
         }}
         style={{ backgroundColor: UCLA.blue, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 5 }}
       >
@@ -136,6 +136,7 @@ export default function RootLayout() {
         <Toast
           message={toast.message}
           chatId={toast.chatId}
+          destination={toast.destination}
           onDismiss={() => setToast(null)}
         />
       )}
