@@ -29,7 +29,7 @@ export default function PlanTripScreen() {
     setDest((params.destination as string) || '')
   }, [params.destination, params.t])
 
-  const today = new Date().toISOString().split('T')[0]
+  const today = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]
   const TIMES = ['8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','4:00 PM','6:00 PM']
   const DURATIONS = ['A few hours', 'Half-day', 'Full-day']
 
