@@ -138,6 +138,7 @@ export async function sendMessage(chatId: string, message: Omit<Message, 'id' | 
   // Update last message on the chat doc
   await updateDoc(doc(db, 'chats', chatId), {
     lastMessage: message.text,
+    lastSenderId: message.senderId,
     lastMessageAt: serverTimestamp(),
   })
 }
