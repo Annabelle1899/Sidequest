@@ -104,7 +104,7 @@ export default function TrackerScreen() {
             <TouchableOpacity style={styles.iconBtn} onPress={() => setShowProfile(true)}>
               <Text>👤</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconBtn} onPress={() => router.push({ pathname: '/chat/[id]', params: { id: tripData?.chatId } })}>
+            <TouchableOpacity style={styles.iconBtn} onPress={() => router.push({ pathname: '/chat/[id]', params: { id: tripData?.chatId, destination: tripData?.destination } })}>
               <Text>💬</Text>
             </TouchableOpacity>
           </View>

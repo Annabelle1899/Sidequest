@@ -103,7 +103,7 @@ export default function MatchScreen() {
           <Text style={styles.contactSub}>Check the chat for details</Text>
         </View>
 
-        <TouchableOpacity style={styles.btnGold} onPress={() => router.push({ pathname: '/chat/[id]', params: { id: chatId } })}>
+        <TouchableOpacity style={styles.btnGold} onPress={() => router.push({ pathname: '/chat/[id]', params: { id: chatId, destination: destination } })}>
           <Text style={styles.btnGoldText}>💬  Send a Message</Text>
         </TouchableOpacity>
 
