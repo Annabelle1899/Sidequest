@@ -29,7 +29,7 @@ export default function PlanTripScreen() {
     setDest((params.destination as string) || '')
   }, [params.destination, params.t])
 
-  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' })
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
   const TIMES = ['8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','4:00 PM','6:00 PM']
   const DURATIONS = ['A few hours', 'Half-day', 'Full-day']
 
