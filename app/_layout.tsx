@@ -50,7 +50,7 @@ function Toast({ message, chatId, onDismiss }: { message: string; chatId: string
       <TouchableOpacity
         onPress={() => {
           onDismiss()
-          router.push({ pathname: '/chat/[id]', params: { id: chatId } })
+          router.push({ pathname: "/chat/[id]", params: { id: chatId, destination: toast?.destination || "" } })
         }}
         style={{ backgroundColor: UCLA.blue, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 5 }}
       >
@@ -99,7 +99,7 @@ export default function RootLayout() {
         if (change.type === 'modified') {
           const chat = change.doc.data()
           if (chat.lastSenderId && chat.lastSenderId !== currentUser.uid && chat.lastMessage) {
-            setToast({ message: chat.lastMessage, chatId: change.doc.id })
+            setToast({ message: chat.lastMessage, chatId: change.doc.id, destination: chat.destination || "" })
           }
         }
       }
