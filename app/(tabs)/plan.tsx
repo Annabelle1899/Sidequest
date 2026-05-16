@@ -109,6 +109,7 @@ export default function PlanTripScreen() {
               value={date}
               min={today}
               onChange={(e: any) => setDate(e.target.value)}
+              onFocus={(e: any) => { if (!e.target.value) e.target.value = new Date().toISOString().split("T")[0] }}
               style={{
                 border: 'none',
                 background: 'transparent',
