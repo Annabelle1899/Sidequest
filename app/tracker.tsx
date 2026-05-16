@@ -23,8 +23,11 @@ export default function TrackerScreen() {
     const unsub = onSnapshot(doc(db, 'trips', tripId as string), async snap => {
       const data = snap.data()
       setTripData(data)
-      const myRole = data?.userId === user?.uid ? data?.role : (data?.role === 'driver' ? 'passenger' : 'driver')
-      setUserRole(myRole)
+      if (data?.userId === user?.uid) {
+        setUserRole(data?.role)
+      } else {
+        setUserRole(data?.role === 'driver' ? 'passenger' : 'driver')
+      }
       if (data?.matchedWith) {
         const profile = await getUserById(data.matchedWith)
         setMatchProfile(profile)
@@ -45,7 +48,6 @@ export default function TrackerScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Profile Modal */}
       <Modal visible={showProfile} transparent animationType="slide" onRequestClose={() => setShowProfile(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
@@ -55,7 +57,7 @@ export default function TrackerScreen() {
               <Text style={styles.modalEmail}>{matchProfile?.email || ''}</Text>
             </View>
             <View style={styles.modalBody}>
-              {matchProfile?.year || matchProfile?.major ? (
+              {(matchProfile?.year || matchProfile?.major) ? (
                 <View style={styles.modalRow}>
                   <Text style={styles.modalLabel}>📚 Year & Major</Text>
                   <Text style={styles.modalVal}>{matchProfile?.year || '—'} · {matchProfile?.major || '—'}</Text>
@@ -90,7 +92,7 @@ export default function TrackerScreen() {
           <Text style={styles.backText}>← Home</Text>
         </TouchableOpacity>
         <Text style={styles.topLabel}>
-          {userRole === 'driver' ? 'Your Passenger' : 'Your Driver'}
+          {userRole === 'passenger' ? 'Your Driver' : 'Your Passenger'}
         </Text>
         <View style={styles.driverRow}>
           <View style={styles.driverAva}><Text style={{ fontSize: 20 }}>🧑</Text></View>
