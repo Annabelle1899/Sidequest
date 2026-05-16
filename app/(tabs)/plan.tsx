@@ -29,16 +29,16 @@ export default function PlanTripScreen() {
     setDest((params.destination as string) || '')
   }, [params.destination, params.t])
 
+  const today = new Date().toISOString().split('T')[0]
   const TIMES = ['8:00 AM','9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','4:00 PM','6:00 PM']
   const DURATIONS = ['A few hours', 'Half-day', 'Full-day']
 
   async function handleMatch() {
-    const today = new Date().toISOString().split("T")[0]
-    if (date && date < today) {
-      return Alert.alert("Invalid Date", "Please select a future date!")
-    }
     if (!destination || !date) {
       return Alert.alert('Missing Info', 'Please fill in destination and date.')
+    }
+    if (date < today) {
+      return Alert.alert('Invalid Date', 'Please select a future date!')
     }
     setLoading(true)
     try {
@@ -70,10 +70,7 @@ export default function PlanTripScreen() {
         params: {
           matchUserId: match.userId,
           matchUsername: matchDisplayName,
-          destination,
-          pickupTime,
-          duration,
-          chatId,
+          destination, pickupTime, duration, chatId,
           tripId: myTripId,
         },
       })
@@ -100,12 +97,32 @@ export default function PlanTripScreen() {
             ))}
           </View>
         </View>
+
         <Card title="Destination">
           <TextInput style={styles.input} value={destination} onChangeText={setDest} placeholder="Where are you going?" />
         </Card>
+
         <Card title="Date">
-          <TextInput style={styles.input} value={date} onChangeText={setDate} placeholder="e.g. 2025-04-20" />
+          <View style={styles.input}>
+            <input
+              type="date"
+              value={date}
+              min={today}
+              onChange={(e: any) => setDate(e.target.value)}
+              style={{
+                border: 'none',
+                background: 'transparent',
+                fontSize: 15,
+                color: '#1E293B',
+                width: '100%',
+                outline: 'none',
+                padding: 0,
+                fontFamily: 'inherit',
+              }}
+            />
+          </View>
         </Card>
+
         <Card title="Pick-up Time">
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={styles.optionRow}>
@@ -117,6 +134,7 @@ export default function PlanTripScreen() {
             </View>
           </ScrollView>
         </Card>
+
         <Card title="Duration">
           <View style={styles.optionRow}>
             {DURATIONS.map(d => (
@@ -126,14 +144,17 @@ export default function PlanTripScreen() {
             ))}
           </View>
         </Card>
+
         <Card title="Gender Preference">
           <RadioGroup options={[{ value: 'girls', label: 'Girls' }, { value: 'guys', label: 'Guys' }, { value: 'no_pref', label: 'No preference' }]} selected={genderPref} onSelect={(v) => setGenderPref(v as GenderPref)} />
         </Card>
+
         {role === 'passenger' && (
           <Card title="People you are bringing">
             <TextInput style={styles.input} value={peopleCount} onChangeText={setPeople} placeholder="e.g. 2" keyboardType="numeric" />
           </Card>
         )}
+
         {role === 'driver' && (
           <>
             <Card title="Car Capacity">
@@ -144,6 +165,7 @@ export default function PlanTripScreen() {
             </Card>
           </>
         )}
+
         <View style={{ padding: 20 }}>
           <TouchableOpacity style={[styles.matchBtn, loading && { opacity: 0.7 }]} onPress={handleMatch} disabled={loading}>
             {loading ? <ActivityIndicator color={UI.white} /> : <Text style={styles.matchBtnText}>Find My Match</Text>}
@@ -192,7 +214,7 @@ const styles = StyleSheet.create({
   toggleBtnActive: { backgroundColor: UCLA.blue },
   toggleText: { fontSize: 14, color: UI.soft },
   toggleTextActive: { color: UI.white },
-  input: { height: 52, borderRadius: 12, borderWidth: 2, borderColor: UCLA.goldLight, backgroundColor: UCLA.goldPale, paddingHorizontal: 16, fontSize: 15, color: UI.charcoal },
+  input: { height: 52, borderRadius: 12, borderWidth: 2, borderColor: UCLA.goldLight, backgroundColor: UCLA.goldPale, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, color: UI.charcoal, justifyContent: 'center' },
   optionRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
   optionPill: { height: 38, paddingHorizontal: 14, borderRadius: 19, borderWidth: 2, borderColor: UI.border, backgroundColor: UI.white, justifyContent: 'center' },
   optionPillActive: { borderColor: UCLA.gold, backgroundColor: UCLA.goldPale },
