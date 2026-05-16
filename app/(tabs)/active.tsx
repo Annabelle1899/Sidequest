@@ -2,9 +2,9 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, RefreshControl } from 'react-native'
 import { useRouter, useFocusEffect } from 'expo-router'
 import { getAuth } from 'firebase/auth'
-import { collection, query, where, onSnapshot } from 'firebase/firestore'
+import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore'
 import { db } from '../../firebase.config'
-import { getUserTrips, getUserById, Trip } from '../../services/firestore'
+import { getUserById, Trip } from '../../services/firestore'
 import { UCLA, UI } from '../../constants/Colors'
 
 export default function ActivePlansScreen() {
@@ -14,31 +14,27 @@ export default function ActivePlansScreen() {
   const [trips, setTrips]        = useState<Trip[]>([])
   const [refreshing, setRefresh] = useState(false)
   const handledRef               = useRef<Set<string>>(new Set())
-  const mountedAt                = useRef(Date.now())
-
-  async function loadTrips() {
-    const data = await getUserTrips(user.uid)
-    setTrips(data)
-  }
-
-  useFocusEffect(useCallback(() => { loadTrips() }, []))
 
   useEffect(() => {
+    // Real-time listener for all my trips
     const q = query(
       collection(db, 'trips'),
       where('userId', '==', user.uid),
-      where('status', '==', 'matched')
+      orderBy('createdAt', 'desc')
     )
     const unsub = onSnapshot(q, async snap => {
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Trip))
+      setTrips(data)
+
+      // Check for newly matched trips
       for (const change of snap.docChanges()) {
         if (change.type !== 'modified') continue
         const trip = { id: change.doc.id, ...change.doc.data() } as any
+        if (trip.status !== 'matched') continue
         if (!trip.matchedWith || !trip.chatId) continue
         if (handledRef.current.has(trip.id)) continue
-        // Only handle if matched recently (within last 30 seconds)
-        const matchedAt = trip.updatedAt?.toMillis?.() || trip.createdAt?.toMillis?.() || 0
-        const now = Date.now()
-        if (now - matchedAt > 30000) continue
+        const matchedAt = trip.updatedAt?.toMillis?.() || 0
+        if (Date.now() - matchedAt > 30000) continue
         handledRef.current.add(trip.id)
         const matchProfile = await getUserById(trip.matchedWith)
         const matchDisplayName = matchProfile?.displayName || matchProfile?.username || 'Your Match'
@@ -76,7 +72,7 @@ export default function ActivePlansScreen() {
       </View>
       <ScrollView
         contentContainerStyle={styles.body}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => { setRefresh(true); await loadTrips(); setRefresh(false) }} tintColor={UCLA.blue} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => { setRefresh(true); setTimeout(() => setRefresh(false), 1000) }} tintColor={UCLA.blue} />}
       >
         {active.length === 0 && past.length === 0 && (
           <View style={styles.empty}>
@@ -111,9 +107,7 @@ export default function ActivePlansScreen() {
                     <Text style={styles.badgeText}>{trip.status === 'matched' ? '✅ Matched' : '🔍 Looking...'}</Text>
                   </View>
                 </View>
-                {trip.status === 'matched' && (
-                  <Text style={{ fontSize: 20 }}>→</Text>
-                )}
+                {trip.status === 'matched' && <Text style={{ fontSize: 20 }}>→</Text>}
               </TouchableOpacity>
             ))}
           </View>
