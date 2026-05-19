@@ -54,8 +54,8 @@ A UCLA-exclusive rideshare platform built by Bruins, for Bruins. Sidequest conne
 ### Installation
 
 ```bash
-git clone https://github.com/Annabelle1899/ACM_Group_3.git
-cd ACM_Group_3
+git clone https://github.com/Annabelle1899/Sidequest.git
+cd Sidequest
 npm install --legacy-peer-deps
 ```
 
@@ -64,7 +64,7 @@ npm install --legacy-peer-deps
 The `firebase.config.ts` file is not included in the repo for security reasons. Ask a team member for the file and place it in the root of the project.
 
 ```
-ACM_Group_3/
+Sidequest/
 ├── firebase.config.ts   ← add this file (ask a teammate)
 ├── app/
 ├── services/
@@ -112,7 +112,7 @@ http://localhost:3000/demo.html
 ## 📁 Project Structure
 
 ```
-ACM_Group_3/
+Sidequest/
 ├── app/
 │   ├── _layout.tsx           # Root navigation, auth redirect, global toast notifications
 │   ├── (auth)/
