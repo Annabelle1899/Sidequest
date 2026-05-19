@@ -11,8 +11,8 @@ A UCLA-exclusive rideshare platform built by Bruins, for Bruins. Sidequest conne
 | Name | Role | Responsibilities |
 |------|------|-----------------|
 | Annabelle Wang | Person 1 | Firebase setup, Authentication, Navigation, Real-time matching notifications, Message toast alerts, Calendar date picker, Profile enhancements, Bug fixes & QA |
-| Yumi Ko | Person 2 | Home screen, Search, Nearby Bruins |
-| Ananya Rai | Person 3 | Trip planning, Matching algorithm |
+| Ananya Rai | Person 2 | Home screen, Search, Nearby Bruins |
+| Yumi Ko | Person 3 | Trip planning, Matching algorithm |
 | Bettina Wu | Person 4 | Profile, Chat, Live tracker |
 
 ---
