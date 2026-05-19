@@ -10,7 +10,7 @@ A UCLA-exclusive rideshare platform built by Bruins, for Bruins. Sidequest conne
 
 | Name | Role | Responsibilities |
 |------|------|-----------------|
-| Annabelle Wang | Person 1 | Firebase setup, Authentication, Navigation |
+| Annabelle Wang | Person 1 | Firebase setup, Authentication, Navigation, Real-time matching notifications, Message toast alerts, Calendar date picker, Profile enhancements, Bug fixes & QA |
 | Yumi Ko | Person 2 | Home screen, Search, Nearby Bruins |
 | Ananya Rai | Person 3 | Trip planning, Matching algorithm |
 | Bettina Wu | Person 4 | Profile, Chat, Live tracker |
@@ -20,18 +20,23 @@ A UCLA-exclusive rideshare platform built by Bruins, for Bruins. Sidequest conne
 ## ✨ Features
 
 - 🔐 **UCLA-verified login** — Only @g.ucla.edu and @ucla.edu emails allowed
-- 🤝 **Smart matching** — Algorithm matches passengers and drivers by destination, time, and preferences
-- 💬 **Real-time chat** — Built-in messaging between matched Bruins
-- 📍 **Live tracker** — See your driver's location in real time
-- 👤 **Bruin profile** — Editable profile with photo prompts and Class of year
+- 🤝 **Smart matching** — Algorithm matches passengers and drivers by destination, date, time, and gender preference
+- 🔔 **Real-time match notifications** — Driver is automatically redirected to the match screen when a passenger matches them
+- 💬 **Real-time chat** — Built-in messaging between matched Bruins, with destination-labeled conversations
+- 📱 **Phone number sharing** — Share your phone number directly in chat with one tap
+- 📍 **Live tracker** — See your driver or passenger's name and destination in real time
+- 👤 **Bruin profile** — Editable profile with photo prompts, Class of year, bio, major, and interests
+- 🔔 **Toast notifications** — Real-time message alerts that appear on any screen when you receive a new message
+- 🗓️ **Built-in date picker** — Native calendar for selecting trip dates, restricted to today and future dates only
 - 🗺️ **Destination search** — Search any LA destination using OpenStreetMap (free, no API key needed)
+- ⭐ **Active plans** — Real-time trip list that updates automatically when your status changes
 - 🔑 **Forgot password** — Firebase email reset sent to your UCLA inbox
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **React Native + Expo** — Cross-platform mobile app
+- **React Native + Expo** — Cross-platform mobile app (web mode for demo)
 - **Firebase Auth** — UCLA email verification and login
 - **Firebase Firestore** — Real-time database for trips, chats, and users
 - **Firebase Storage** — Profile photo and photo prompt uploads
@@ -44,7 +49,7 @@ A UCLA-exclusive rideshare platform built by Bruins, for Bruins. Sidequest conne
 
 ### Prerequisites
 - Node.js installed
-- Expo CLI (`npm install -g expo-cli`)
+- npm or yarn
 
 ### Installation
 
@@ -100,6 +105,8 @@ http://localhost:3000/demo.html
 
 > ⚠️ Both terminals must stay open the whole time.
 
+> ⚠️ Use Chrome for both accounts (use separate Chrome Profiles). Safari has known issues with Firebase Firestore WebChannel connections.
+
 ---
 
 ## 📁 Project Structure
@@ -107,21 +114,21 @@ http://localhost:3000/demo.html
 ```
 ACM_Group_3/
 ├── app/
-│   ├── _layout.tsx           # Root navigation + auth redirect
+│   ├── _layout.tsx           # Root navigation, auth redirect, global toast notifications
 │   ├── (auth)/
 │   │   ├── welcome.tsx       # Welcome screen
-│   │   ├── login.tsx         # Login screen
-│   │   └── signup.tsx        # Sign up screen
+│   │   ├── login.tsx         # Login with forgot password
+│   │   └── signup.tsx        # UCLA email validation
 │   ├── (tabs)/
-│   │   ├── _layout.tsx       # Bottom tab navigation
-│   │   ├── home.tsx          # Home screen with search
-│   │   ├── plan.tsx          # Plan a trip screen
-│   │   ├── active.tsx        # Active plans screen
-│   │   ├── messages.tsx      # Chat inbox
-│   │   └── profile.tsx       # User profile screen
-│   ├── match.tsx             # Match result screen
-│   ├── tracker.tsx           # Live location tracker
-│   └── chat/[id].tsx         # Real-time chat screen
+│   │   ├── _layout.tsx       # Bottom tab navigation with unread message indicator
+│   │   ├── home.tsx          # Home screen with destination search
+│   │   ├── plan.tsx          # Plan a trip with date picker and matching
+│   │   ├── active.tsx        # Real-time active plans with auto-match redirect
+│   │   ├── messages.tsx      # Chat inbox with unread indicators
+│   │   └── profile.tsx       # User profile with photo prompts and phone number
+│   ├── match.tsx             # Match result screen with profile popup
+│   ├── tracker.tsx           # Live location tracker with match profile popup
+│   └── chat/[id].tsx         # Real-time chat with phone sharing button
 ├── services/
 │   ├── auth.ts               # Firebase auth functions
 │   ├── firestore.ts          # Firestore database functions
@@ -148,6 +155,18 @@ If you see an index error in the console, click the link in the error message to
 
 ---
 
+## 🧪 Testing Matching
+
+For matching to work correctly:
+1. **Driver posts first** — select Driver role, pick destination, date, and No preference for gender
+2. **Passenger posts second** — same destination and date, No preference for gender
+3. Both sides are automatically redirected to the match screen
+4. Driver can also access the tracker from Active Plans
+
+> Use two separate Chrome Profiles to test with two accounts simultaneously.
+
+---
+
 ## 🐻 Go Bruins!
 
-Built with 💙💛 at UCLA — 2025
+Built with 💙💛 at UCLA — 2026
